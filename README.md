@@ -18,21 +18,55 @@ The result is simple: traverse the docs, understand the local rules, make precis
 
 ## How to use
 
-1. Copy the contents of [AGENTS.md](./AGENTS.md?plain=1) into your project's AGENTS.md file.
+Add DOX once, then use the prompt that fits your situation.
 
-<br>
-That's it. No installation, no dependencies, no package, no runtime. DOX is just a Markdown instruction for AI agents.
+**Add DOX.** Copy the contents of [AGENTS.md](./AGENTS.md?plain=1) into an `AGENTS.md` file in your project root. That's it — no installation, no dependencies, no runtime. DOX is just a Markdown instruction, and works with any agent that reads AGENTS.md (Codex, Claude Code, OpenCode, and similar).
 
-It works with any AI agent that supports AGENTS.md files, including Codex, Claude Code, OpenCode, and similar tools.
+### New project (little or no code yet)
 
-No AGENTS.md yet? Copy the file into your project root. The agent will see these instructions and will start building the DOX tree.
+Nothing to scan, so seed the structure from your intent:
 
-For an existing project, you can tell your agent: `Initialize DOX tree for this project now.` It will create all the child AGENTS.md files and indexes.
+```
+Set up DOX for a new project. Here's what I'm building: <one-line description>. Create the root AGENTS.md and an initial tree for the structure we'll use.
+```
+
+Then just build — the agent updates the AGENTS.md files as the project grows.
+
+### Existing project (has code, no docs yet)
+
+Have the agent build the tree from your codebase:
+
+```
+Run the Initialization procedure in AGENTS.md: scan the repo, create the root and child AGENTS.md files at durable boundaries, populate every Child DOX Index, then report the tree.
+```
+
+Capable models also handle the short form: `Initialize DOX tree for this project now.`
+
+### New session on a DOX project (docs already exist)
+
+Point the agent at the contract before it works:
+
+```
+This project uses DOX. Read the root AGENTS.md and follow it this session: walk the doc chain before editing, and update the affected AGENTS.md files after.
+```
+
+For a focused task, narrow it: `Read the DOX chain for <path/area>, then <task>.`
 
 ## Credits
 
 <p align="center">
-  Created by <strong><a href="https://www.agent-zero.ai/">Agent Zero</a></strong><br>
+  Original framework by <strong><a href="https://www.agent-zero.ai/">Agent Zero</a></strong><br>
   Open-source agentic AI framework<br>
   <a href="https://www.agent-zero.ai/">Website</a> · <a href="https://github.com/agent0ai/agent-zero">GitHub repository</a>
 </p>
+
+### Modifications
+
+Modified by [jpbaking](https://github.com/jpbaking).
+
+- Front-loaded the bootstrap path and added an explicit, numbered **Initialization** procedure with a "Done when" check, so the steps to build the tree are spelled out rather than inferred.
+- Replaced the abstract "durable boundary" judgment with concrete heuristics, a bias toward fewer docs, and a shallow-first depth limit.
+- Added an example child AGENTS.md and decoupled the initialization trigger from the Child DOX Index placeholder.
+- Trimmed jargon on the procedural path, and reworked the README "How to use" with scenario-specific prompts.
+
+**Why:** the original framework is principle-heavy — capable models infer the procedure from it, but weaker models struggle to comply. These changes turn the principles into explicit procedures so weaker models follow them reliably.
