@@ -15,18 +15,42 @@ DOX is a hierarchy of AGENTS.md files that keeps a project understandable. Each 
 - The closer a doc is to the work, the more specific and practical it is. Broad rules live in parents; concrete details live in children.
 - Each parent explains what its direct children cover and what the parent keeps for itself.
 
+## Where a doc goes: boundaries
+
+A **boundary** is a folder that earns its own AGENTS.md. Apply this test to every folder, at the root and at every level below it, all the way down. Depth does not matter — a deeply nested folder gets a doc on exactly the same terms as a top-level one.
+
+**Create an AGENTS.md for a folder when ANY of these is true:**
+
+- It is a submodule, subproject, or nested repository (git submodule, workspace/monorepo package, or a project you maintain inside this one).
+- It is separately built, run, tested, or deployed — it has its own `package.json`, `pyproject.toml`, `go.mod`, `Cargo.toml`, `Makefile`, `Dockerfile`, or similar.
+- It has its own purpose or audience that differs from its parent.
+- It carries its own contracts, interfaces, or rules that differ from the parent's.
+
+**Do NOT create one when ALL of these are true:**
+
+- It is just a grouping folder (for example `utils/`, `helpers/`, `assets/`) with no distinct contract.
+- Everything in it already follows the parent's rules.
+- A doc here would only repeat the parent.
+
+When unsure, do not create one — the nearest parent covers it. But **never skip a real submodule or subproject**; those always get a doc.
+
+**Go as deep as the structure goes.** A boundary inside a boundary gets its own child AGENTS.md. A submodule that itself contains submodules or subprojects gets a full DOX subtree beneath it. There is no depth limit and no preference for a flat tree — the doc tree should mirror the project's real structure.
+
+**Sub-roots.** When a boundary is a self-contained submodule or subproject, treat its AGENTS.md as a *sub-root*: write it like a root (full local contract, plus its own workflow or verification rules where they differ from the parent) and build a normal DOX tree beneath it. A sub-root still may not weaken any rule from the docs above it.
+
 ## Child Doc Shape
 
 A child AGENTS.md uses these sections, in this order. Omit a section if it would be empty — except keep the Child DOX Index and mark it `(none)` at a leaf, so the tree stays explicit.
 
 - **Purpose** — what this folder is for.
 - **Ownership** — what this doc governs and what it leaves to parent or child docs.
-- **Local Contracts** — rules, interfaces, or constraints specific to this folder.
+- **Local Contracts** — rules, interfaces, or constraints specific to this folder. A sub-root puts its build/run/test commands and its own workflow rules here.
 - **Work Guidance** — current standards or user instructions for work here. Leave empty if none exist yet.
 - **Verification** — how to check work here (tests, lint, build). Leave empty if no such check exists yet.
-- **Child DOX Index** — one line per direct child AGENTS.md, naming what it covers.
+- **Feature Map** — features implemented in this subtree, each pointing to its entry file and supporting files. Omit if none yet. See the Feature Map section below for the format and rules.
+- **Child DOX Index** — one line per direct child AGENTS.md, naming what it covers. Mark `(none)` at a leaf.
 
-Example child AGENTS.md:
+Example child AGENTS.md (a leaf):
 
 ```markdown
 # services/auth
@@ -44,22 +68,81 @@ Owns code under services/auth/. Database schema is owned by ../db.
 ## Verification
 - `npm test` in this folder must pass before any commit.
 
+## Feature Map
+- **Login** — email/password sign-in; issues a session. Start: `login.ts`. Files: `session.ts`, `password.ts`.
+- **Token issuance** — signs and refreshes access tokens. Start: `tokens.ts`. Files: `keys.ts`.
+
 ## Child DOX Index
 - (none)
 ```
 
+Example sub-root (a standalone subproject with its own children):
+
+```markdown
+# packages/payments
+
+Sub-root: standalone subproject with its own build and deploy.
+
+## Purpose
+Payments service: charges, refunds, and provider integrations.
+
+## Ownership
+Owns everything under packages/payments/. Inherits all root DOX rules and adds the local rules below. Does not weaken any parent rule.
+
+## Local Contracts
+- Build, test, and run from this folder: `make test`, `make run`.
+- All money values use integer minor units. Never use floats.
+
+## Verification
+- `make test` must pass before any commit that touches this subtree.
+
+## Feature Map
+- **Charge a card** — authorizes and captures a payment. Start: `charge.ts`. Files: `providers/`, `ledger/post.ts`. Detail in ./providers and ./ledger.
+- **Refund** — reverses a charge and updates the ledger. Start: `refund.ts`. Files: `ledger/post.ts`.
+
+## Child DOX Index
+- providers/ — adapters for each external payment provider.
+- ledger/ — double-entry ledger and reconciliation.
+```
+
+## Feature Map
+
+The Feature Map answers "what does this part of the system do, and which files do I open to work on it?" It lets an agent start a feature with minimal code traversal, and lets the whole tree be aggregated into an architecture overview.
+
+It is separate from the Child DOX Index on purpose. The Child DOX Index maps **docs to child docs** (how to navigate the doc tree). The Feature Map maps **features to source files** (how to navigate the code). They are different axes — keep them in different sections.
+
+**Format.** Each AGENTS.md lists the features whose code lives mostly within its own subtree. One bullet per feature:
+
+```
+- **<Feature name>** — <one line: what it does>. Start: `<entry file>`. Files: `<other files or folders>`.
+```
+
+- **Start** is the single file to open first — the entry point, or the clearest place to begin reading.
+- **Files** are the other source files or folders that implement it. Name a folder, not every file inside it, when the whole folder belongs to the feature.
+
+**Where a feature goes (locality).**
+
+- Put a feature in the AGENTS.md closest to its code.
+- If a feature's code spans several folders, put it in the lowest folder whose subtree contains all of it. Name the feature there and point into the child docs that hold each slice (`Detail in ./child`); each child may list its own slice.
+- The root lists the project's primary, system-wide features. When the detail lives deeper, the root entry points to the owning doc instead of listing files.
+
+**Keep it current.** When a change adds, removes, renames, or relocates a feature — or moves the files behind one — update the Feature Map in the owning doc in the same pass. A stale map is worse than none.
+
+**Architecture overview.** To produce one, walk the DOX tree from the root and collect every Feature Map. Grouped by feature, the result is a feature-to-files map of the whole system — with no separate source of truth to maintain.
+
 ## Initialization
 
-Run this when asked to initialize or index the project.
+Run this when asked to initialize or index the project. Work top-down, then recurse into every boundary.
 
-1. **Map the repo.** List the directory tree, skipping vendored, build, and version-control dirs (node_modules, dist, .git, and similar). Note each top-level area and its purpose.
-2. **Pick boundaries.** Create a child AGENTS.md for a folder only when it is a durable boundary — it has its own purpose, its own audience, or its own build/run/test story (for example src/, services/<name>/, docs/, infra/). When unsure, do not create one; the nearest parent covers it.
-3. **Stay shallow first.** Cover the root plus the obvious top-level areas. Go deeper only where a subtree is clearly its own domain. Aim for the fewest docs that keep the project understandable.
-4. **Write the docs.** Keep the DOX rules in the root AGENTS.md. Write each child using Child Doc Shape above. Leave Work Guidance and Verification empty where no standard or check exists yet.
-5. **Wire the indexes.** In every doc that has children, fill the Child DOX Index with one line per direct child, naming what it covers.
-6. **Report.** State the tree you created and name any folder you deliberately left without a doc.
+1. **Map the folder.** List its directory tree. Skip vendored, build, and version-control dirs (`node_modules`, `dist`, `build`, `target`, `.git`, and similar). Write down each folder and a one-line note on its purpose.
+2. **Mark the boundaries.** Apply the boundary test (above) to every folder you listed. Mark each one "doc" or "no doc." Always mark submodules and subprojects "doc."
+3. **Recurse.** For each folder you marked "doc," repeat steps 1–2 *inside* that folder. Keep going until you reach folders that contain no further boundaries. Do not stop at the top level — go as deep as the structure goes.
+4. **Write the docs.** Keep the DOX rules in the root AGENTS.md only. Write every other AGENTS.md using Child Doc Shape above; write a submodule or subproject as a sub-root. Leave Work Guidance and Verification empty where no standard or check exists yet.
+5. **Wire the indexes.** In every doc that has children, fill the Child DOX Index — one line per direct child, naming what it covers. Mark a leaf `(none)`.
+6. **Map the features.** In each doc, fill the Feature Map with the features you can identify from the code, one bullet per feature, each with its Start file and supporting files. Put each feature in the doc closest to its code (see Feature Map locality).
+7. **Report.** Print the full tree you created and name any folder you deliberately left without a doc.
 
-Done when: the root Child DOX Index is populated, every boundary folder has an AGENTS.md, and no Child DOX Index still reads "Not yet indexed."
+Done when: every boundary at every depth has an AGENTS.md, every Child DOX Index is filled (or `(none)` at a leaf), each doc's Feature Map lists the features identifiable at its level, and no index still reads "Not yet indexed."
 
 ## Read Before Editing
 
@@ -67,9 +150,9 @@ Before editing any file:
 
 1. Read the root AGENTS.md.
 2. List the files and folders you expect to touch.
-3. For each target, walk from the root down to it, reading every AGENTS.md along the way.
+3. For each target, walk from the root down to it, reading every AGENTS.md along the way — including any sub-root in the path.
 4. Treat the nearest AGENTS.md as the local contract and the parents as repo-wide rules.
-5. If two docs conflict, the closer one controls local details — but no child may weaken DOX itself.
+5. If two docs conflict, the closer one controls local details — but no child or sub-root may weaken DOX itself.
 
 Re-read the applicable chain in the current session. Do not rely on memory.
 
@@ -80,6 +163,7 @@ Every meaningful change requires a DOX pass before the task is done. Update the 
 - purpose, scope, ownership, or responsibilities;
 - durable structure, contracts, workflows, or operating rules;
 - required inputs, outputs, permissions, constraints, side effects, or artifacts;
+- the set of features in this subtree, or the files that implement a feature (update the Feature Map in the owning doc);
 - user preferences about behavior, communication, process, organization, or quality;
 - any AGENTS.md creation, deletion, move, rename, or index change.
 
@@ -89,6 +173,7 @@ Update a parent when parent-level structure, ownership, workflow, or its child i
 
 - Keep docs concise, current, and operational. Document stable contracts, not history.
 - Prefer direct bullets with explicit names.
+- Match the doc tree to the real structure: go deep where the project is deep, and do not flatten genuine boundaries to save docs.
 - Do not duplicate a rule across files unless each scope needs its own version.
 - Delete stale notes instead of explaining how things used to be.
 - Trim obvious statements, repeated rules, misplaced detail, and warnings for risks that no longer exist.
@@ -98,9 +183,10 @@ Update a parent when parent-level structure, ownership, workflow, or its child i
 1. Re-check changed paths against the DOX chain.
 2. Update the nearest owning docs and any affected parents or children.
 3. Refresh every affected Child DOX Index.
-4. Remove stale or contradictory text.
-5. Run existing verification when relevant.
-6. Report any docs you intentionally left unchanged and why.
+4. Refresh every affected Feature Map.
+5. Remove stale or contradictory text.
+6. Run existing verification when relevant.
+7. Report any docs you intentionally left unchanged and why.
 
 ## User Preferences
 
