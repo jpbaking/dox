@@ -103,6 +103,62 @@ Read the DOX chain for <path/area> (root AGENTS.md down to that folder), then do
 
 For example, `<path/area>` = `services/auth` and `<task>` = "add rate limiting to the login endpoint".
 
+### Check the health of the DOX tree (audit / lint)
+
+Docs drift when a weaker model skips a step or someone edits the repo by hand. Run this **read-only** audit to catch misses before they bite. It reports; it does not fix:
+
+```
+Audit the health of this project's DOX docs. This is READ-ONLY — do not change any files, just report. Work step by step:
+1. Read the root AGENTS.md, especially "Where a doc goes: boundaries" and "Child Doc Shape".
+2. Map the folders (skip node_modules, dist, build, target, .git) and apply the boundary test to every folder at EVERY depth.
+3. Coverage: list any boundary — especially any submodule or subproject — that has no AGENTS.md, and any AGENTS.md sitting on a folder that is not a boundary.
+4. Child DOX Index: for every doc, check it lists every direct child doc (one line each, "(none)" at a leaf) with no missing, extra, or leftover "Not yet indexed" entries.
+5. Feature Map: for every listed feature, confirm its Start file and other files still exist; flag entries pointing to moved or deleted files, and obvious features that have no entry.
+6. Shape: flag docs that skip required sections, use them out of order, or that should be sub-roots but are not.
+7. Contracts: flag any child or sub-root rule that conflicts with or weakens a parent, and any rule describing behavior or files that no longer exist.
+8. Report findings grouped by severity (broken/missing, stale, minor), each with the file path and a one-line suggested fix. Do not fix anything — ask me first.
+```
+
+<details>
+<summary><strong>Short form</strong> — for capable / frontier models</summary>
+
+```
+Audit this project's DOX health (READ-ONLY, do not edit): check boundary coverage at every depth, Child DOX Index completeness, that Feature Map files still exist, Child Doc Shape conformance, and parent/child contract conflicts. Report issues grouped by severity with paths and suggested fixes.
+```
+
+</details>
+
+To audit just one area, scope it: `Audit the DOX health of <path/area> only (read-only): coverage, Child DOX Index, Feature Map file references, shape, and contract conflicts against its parents. Report findings with paths and fixes.`
+
+### Fix the DOX tree (auto-repair)
+
+When you want the misses fixed and not just listed, use this. It runs the same audit, then repairs the safe problems and leaves the judgment calls to you:
+
+```
+Audit AND repair this project's DOX docs. Edit docs only — never change source code. Work step by step:
+1. Run the full DOX health audit first: boundary coverage at every depth, Child DOX Index, Feature Map file references, Child Doc Shape, and parent/child contract conflicts.
+2. Fix the safe, mechanical problems directly:
+   - Create a missing AGENTS.md at every uncovered boundary using Child Doc Shape (write a submodule or subproject as a sub-root).
+   - Repair every Child DOX Index: add missing children, drop entries for docs that no longer exist, mark leaves "(none)", and replace any "Not yet indexed" placeholder.
+   - Fix Feature Map entries: correct paths to moved files, remove entries whose files are gone, and add obvious missing features with their Start file.
+   - Fix Child Doc Shape: restore missing sections and their order; convert a submodule/subproject doc into a sub-root where it should be one.
+   - Delete text describing files or behavior that no longer exist.
+3. Do NOT guess on judgment calls. For contract conflicts (a child weakening a parent), ambiguous ownership, or a rule you cannot tell is intentional, leave it unchanged and list it for me instead.
+4. Follow the Closeout procedure in AGENTS.md to finish.
+5. Report every file you created or changed (one line each), then separately list the judgment calls you left for me to decide.
+```
+
+<details>
+<summary><strong>Short form</strong> — for capable / frontier models</summary>
+
+```
+Audit and auto-fix this project's DOX docs (edit docs only, never source): create missing boundary/sub-root docs, repair every Child DOX Index and Feature Map, fix Child Doc Shape, and remove stale text. Leave contract conflicts and other judgment calls for me. Run Closeout, then report every changed file and every item left for me.
+```
+
+</details>
+
+To repair just one area, scope it: `Audit and fix the DOX docs under <path/area> only (docs only, never source). Repair coverage, Child DOX Index, Feature Map, and shape; leave contract conflicts for me. Report what changed.`
+
 ## Credits
 
 <p align="center">
