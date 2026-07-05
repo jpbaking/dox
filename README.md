@@ -42,6 +42,17 @@ curl -fsSL https://raw.githubusercontent.com/jpbaking/dox/main/install-cline.sh 
 
 That drops the skills into `.cline/skills/` and the rule into `.clinerules/`. Append `-s -- --global` after `sh` to install for every project (`~/.cline/skills/` and `~/Documents/Cline/Rules`) instead. Re-run anytime to update; you can also just copy the folders by hand.
 
+<details>
+<summary><strong>Windows / PowerShell</strong></summary>
+
+```powershell
+irm https://raw.githubusercontent.com/jpbaking/dox/main/install-cline.ps1 | iex
+```
+
+That drops the skills into `.cline\skills\` and the rule into `.clinerules\`. Set `$env:DOX_GLOBAL = "1"` before running to install for every project (`~/.cline/skills/` and `~/Documents/Cline/Rules`) instead. Re-run anytime to update; you can also just copy the folders by hand.
+
+</details>
+
 The skills:
 
 - **`/dox-init`** — initialize the tree; the agent detects whether this is a new project (little or no code) or an existing codebase, and even fetches the framework AGENTS.md for you if it is missing.
