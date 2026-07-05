@@ -8,7 +8,7 @@ DOX is a tiny AGENTS.md framework that gives an AI agent precise project context
 
 The agent keeps a hierarchy of AGENTS.md files as the project changes:
 
-- root AGENTS.md contains project-wide instructions and the top-level index
+- root AGENTS.md contains project-wide instructions, the project-level Feature Map, and the top-level index
 - child AGENTS.md files contain local instructions for specific areas
 - before any edit, the agent walks the docs tree from the root to the area it will touch
 - the relevant docs give it exact local guidelines, so it does not edit blindly
@@ -56,11 +56,11 @@ Have the agent build the tree from your codebase. Tell it to follow the procedur
 ```
 Initialize DOX for this existing project by following the Initialization procedure in AGENTS.md exactly. Do not skip steps.
 1. Read the full AGENTS.md first.
-2. Map the folders, skipping node_modules, dist, build, target, and .git.
-3. Apply the boundary test to every folder at EVERY depth, not just the top level. Every submodule and subproject gets its own AGENTS.md (a sub-root); recurse into each one.
+2. Map the folders, skipping node_modules, dist, build, target, .git, and .svn.
+3. Apply the boundary test to every folder at EVERY depth, not just the top level. Every submodule and subproject gets its own AGENTS.md (a sub-root); recurse into each one. If any folder already carries its own root AGENTS.md with the full DOX rules, it is a nested root: leave its whole doc tree unchanged and just index it as a child.
 4. Write each AGENTS.md using Child Doc Shape.
 5. Fill every Child DOX Index (one line per direct child; "(none)" at a leaf).
-6. Fill every Feature Map: for each feature give its Start file and its other files.
+6. Fill every Feature Map, the root AGENTS.md's included: for each feature give its Start file and its other files.
 7. Stop only when the "Done when" check in the Initialization procedure is satisfied, then show me the full tree.
 ```
 
@@ -68,7 +68,7 @@ Initialize DOX for this existing project by following the Initialization procedu
 <summary><strong>Short form</strong> — for capable / frontier models</summary>
 
 ```
-Initialize the DOX tree for this project now: full depth, a sub-root AGENTS.md for every submodule/subproject, every Child DOX Index and Feature Map populated. Report the tree.
+Initialize the DOX tree for this project now: full depth, a sub-root AGENTS.md for every submodule/subproject (leave any folder that already has its own root AGENTS.md — a nested root — untouched), every Child DOX Index and Feature Map populated. Report the tree.
 ```
 
 </details>
@@ -81,7 +81,7 @@ Point the agent at the contract before it works:
 This project uses DOX (a tree of AGENTS.md files). Before you change anything:
 1. Read the root AGENTS.md.
 2. Tell me which files you plan to touch.
-3. For each one, read every AGENTS.md from the root down to it, including any sub-root on the way.
+3. For each one, read every AGENTS.md from the root down to it, including any sub-root or nested root on the way.
 4. Follow those docs as you work.
 After you finish, do the Closeout pass: update the nearest owning AGENTS.md, refresh its Child DOX Index and Feature Map, and tell me what changed.
 ```
@@ -109,13 +109,13 @@ Docs drift when a weaker model skips a step or someone edits the repo by hand. R
 
 ```
 Audit the health of this project's DOX docs. This is READ-ONLY — do not change any files, just report. Work step by step:
-1. Read the root AGENTS.md, especially "Where a doc goes: boundaries" and "Child Doc Shape".
-2. Map the folders (skip node_modules, dist, build, target, .git) and apply the boundary test to every folder at EVERY depth.
+1. Read the root AGENTS.md, especially "Where a doc goes: boundaries" (including "Nested roots") and "Child Doc Shape".
+2. Map the folders (skip node_modules, dist, build, target, .git, .svn) and apply the boundary test to every folder at EVERY depth. Mark every folder that carries its own root AGENTS.md with the full DOX rules as a NESTED ROOT — that covers git submodules, SVN externals, Perforce mapped paths, and any other independently versioned subproject.
 3. Coverage: list any boundary — especially any submodule or subproject — that has no AGENTS.md, and any AGENTS.md sitting on a folder that is not a boundary.
 4. Child DOX Index: for every doc, check it lists every direct child doc (one line each, "(none)" at a leaf) with no missing, extra, or leftover "Not yet indexed" entries.
-5. Feature Map: for every listed feature, confirm its Start file and other files still exist; flag entries pointing to moved or deleted files, and obvious features that have no entry.
-6. Shape: flag docs that skip required sections, use them out of order, or that should be sub-roots but are not.
-7. Contracts: flag any child or sub-root rule that conflicts with or weakens a parent, and any rule describing behavior or files that no longer exist.
+5. Feature Map: for every listed feature, confirm its Start file and other files still exist; flag entries pointing to moved or deleted files, obvious features that have no entry, and any leftover "Not yet mapped" placeholder.
+6. Shape: flag docs that skip required sections, use them out of order, or that should be sub-roots but are not. Exception: a nested root correctly keeps the full DOX rules and root shape — never flag it as a shape violation.
+7. Contracts: flag any child or sub-root rule that conflicts with or weakens a parent, and any rule describing behavior or files that no longer exist. Mark conflicts involving a nested root as "decide with the owner" — the fix may belong in the parent, not the nested project.
 8. Report findings grouped by severity (broken/missing, stale, minor), each with the file path and a one-line suggested fix. Do not fix anything — ask me first.
 ```
 
@@ -123,12 +123,12 @@ Audit the health of this project's DOX docs. This is READ-ONLY — do not change
 <summary><strong>Short form</strong> — for capable / frontier models</summary>
 
 ```
-Audit this project's DOX health (READ-ONLY, do not edit): check boundary coverage at every depth, Child DOX Index completeness, that Feature Map files still exist, Child Doc Shape conformance, and parent/child contract conflicts. Report issues grouped by severity with paths and suggested fixes.
+Audit this project's DOX health (READ-ONLY, do not edit): check boundary coverage at every depth, Child DOX Index completeness, that Feature Map files still exist, Child Doc Shape conformance, and parent/child contract conflicts. A subproject's own root AGENTS.md (full DOX rules) is a valid nested root, not a shape violation. Report issues grouped by severity with paths and suggested fixes.
 ```
 
 </details>
 
-To audit just one area, scope it: `Audit the DOX health of <path/area> only (read-only): coverage, Child DOX Index, Feature Map file references, shape, and contract conflicts against its parents. Report findings with paths and fixes.`
+To audit just one area, scope it: `Audit the DOX health of <path/area> only (read-only): coverage, Child DOX Index, Feature Map file references, shape, and contract conflicts against its parents. A subproject's own root AGENTS.md (full DOX rules) is a valid nested root, not a shape violation. Report findings with paths and fixes.`
 
 ### Fix the DOX tree (auto-repair)
 
@@ -137,27 +137,28 @@ When you want the misses fixed and not just listed, use this. It runs the same a
 ```
 Audit AND repair this project's DOX docs. Edit docs only — never change source code. Work step by step:
 1. Run the full DOX health audit first: boundary coverage at every depth, Child DOX Index, Feature Map file references, Child Doc Shape, and parent/child contract conflicts.
-2. Fix the safe, mechanical problems directly:
+2. NESTED ROOTS ARE OFF-LIMITS: never edit any file inside a folder that carries its own root AGENTS.md with the full DOX rules (a git submodule, SVN external, Perforce mapped path, or other independently versioned subproject). Do not rewrite its doc into Child Doc Shape and do not strip its DOX rules — that root shape is correct there. List its problems for me instead; fixes there must be committed in that project's own repository.
+3. Fix the safe, mechanical problems directly:
    - Create a missing AGENTS.md at every uncovered boundary using Child Doc Shape (write a submodule or subproject as a sub-root).
    - Repair every Child DOX Index: add missing children, drop entries for docs that no longer exist, mark leaves "(none)", and replace any "Not yet indexed" placeholder.
-   - Fix Feature Map entries: correct paths to moved files, remove entries whose files are gone, and add obvious missing features with their Start file.
-   - Fix Child Doc Shape: restore missing sections and their order; convert a submodule/subproject doc into a sub-root where it should be one.
+   - Fix Feature Map entries: correct paths to moved files, remove entries whose files are gone, add obvious missing features with their Start file, and replace any "Not yet mapped" placeholder.
+   - Fix Child Doc Shape: restore missing sections and their order; convert a submodule/subproject doc into a sub-root where it should be one (but never a nested root — step 2).
    - Delete text describing files or behavior that no longer exist.
-3. Do NOT guess on judgment calls. For contract conflicts (a child weakening a parent), ambiguous ownership, or a rule you cannot tell is intentional, leave it unchanged and list it for me instead.
-4. Follow the Closeout procedure in AGENTS.md to finish.
-5. Report every file you created or changed (one line each), then separately list the judgment calls you left for me to decide.
+4. Do NOT guess on judgment calls. For contract conflicts (a child weakening a parent), ambiguous ownership, or a rule you cannot tell is intentional, leave it unchanged and list it for me instead.
+5. Follow the Closeout procedure in AGENTS.md to finish.
+6. Report every file you created or changed (one line each), then separately list the judgment calls and nested-root fixes you left for me to decide.
 ```
 
 <details>
 <summary><strong>Short form</strong> — for capable / frontier models</summary>
 
 ```
-Audit and auto-fix this project's DOX docs (edit docs only, never source): create missing boundary/sub-root docs, repair every Child DOX Index and Feature Map, fix Child Doc Shape, and remove stale text. Leave contract conflicts and other judgment calls for me. Run Closeout, then report every changed file and every item left for me.
+Audit and auto-fix this project's DOX docs (edit docs only, never source): create missing boundary/sub-root docs, repair every Child DOX Index and Feature Map, fix Child Doc Shape, and remove stale text. Never edit files inside a nested root (any folder with its own root AGENTS.md) — list those fixes for me. Leave contract conflicts and other judgment calls for me too. Run Closeout, then report every changed file and every item left for me.
 ```
 
 </details>
 
-To repair just one area, scope it: `Audit and fix the DOX docs under <path/area> only (docs only, never source). Repair coverage, Child DOX Index, Feature Map, and shape; leave contract conflicts for me. Report what changed.`
+To repair just one area, scope it: `Audit and fix the DOX docs under <path/area> only (docs only, never source). Repair coverage, Child DOX Index, Feature Map, and shape; never edit inside a nested root, and leave contract conflicts for me. Report what changed.`
 
 ## Credits
 
@@ -175,7 +176,8 @@ Modified by [jpbaking](https://github.com/jpbaking).
 - Replaced the abstract "durable boundary" judgment with a concrete, mechanical boundary test that a weaker model can apply at every folder.
 - Removed the shallow-first depth limit. The doc tree now follows the project's real structure: it recurses to any depth, gives every submodule/subproject its own doc, and treats those as "sub-roots" with their own child trees.
 - Added a leaf example and a sub-root example child AGENTS.md, and decoupled the initialization trigger from the Child DOX Index placeholder.
-- Added a **Feature Map** section: each doc points its features to their entry and supporting source files, so an agent can start a feature with minimal code traversal and an architecture overview can be aggregated by walking the tree.
+- Added a **Feature Map** section: each doc — the root included, under the same rules — points its features to their entry and supporting source files, so an agent can start a feature with minimal code traversal and an architecture overview can be aggregated by walking the tree.
+- Added **nested roots**: any folder that carries its own root AGENTS.md — a git submodule, SVN external, Perforce mapped path, or other independently versioned subproject — keeps its full DOX rules and root shape, so the same doc works whichever folder an engineer roots their workspace at. The parent tree reads it as a local root but never rewrites it; conflicts are reported instead of "fixed," and changes inside it are called out as belonging to that project's own repository.
 - Trimmed jargon on the procedural path, and reworked the README "How to use" with scenario-specific prompts.
 
 **Why:** the original framework is principle-heavy — capable models infer the procedure from it, but weaker models struggle to comply. These changes turn the principles into explicit procedures so weaker models follow them reliably.
