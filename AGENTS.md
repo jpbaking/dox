@@ -1,5 +1,7 @@
 # DOX framework
 
+DOX v2.0.0 — framework source: https://github.com/jpbaking/dox
+
 DOX is a hierarchy of AGENTS.md files that keeps a project understandable. Each folder's AGENTS.md is the local contract for everything beneath it; together they form a tree from the repository root down to each work area. Follow DOX across every edit in this project.
 
 ## Core Contract

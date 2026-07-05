@@ -22,7 +22,7 @@ This fork is tuned for **smaller / weaker models**. Where the original states pr
 
 **Overhead:** the root AGENTS.md alone is ~15 KB — roughly **3.5–4k tokens** loaded into context every session, before any child doc on the path to your work area is read.
 
-**If you consistently run frontier models, use the original instead.** The [Agent Zero](https://github.com/agent0ai/agent-zero) framework this fork derives from is leaner and principle-based — a capable model follows it just as well at a fraction of the token cost. Pick this fork when cheaper or smaller models will be doing a meaningful share of the work.
+**If you consistently run frontier models, use the original instead.** The [Agent Zero DOX](https://github.com/agent0ai/dox) framework this fork derives from is leaner and principle-based — a capable model follows it just as well at a fraction of the token cost. Pick this fork when cheaper or smaller models will be doing a meaningful share of the work.
 
 ## How to use
 
@@ -31,6 +31,28 @@ Add DOX once, then use the prompt that fits your situation.
 **Add DOX.** Copy the contents of [AGENTS.md](./AGENTS.md?plain=1) into an `AGENTS.md` file in your project root. That's it — no installation, no dependencies, no runtime. DOX is just a Markdown instruction, and works with any agent that reads AGENTS.md (Codex, Claude Code, OpenCode, and similar).
 
 The prompts below are written out step by step on purpose. Smaller models follow numbered, explicit instructions far more reliably than short ones, so prefer these full versions.
+
+### Using Cline? Install the skills instead
+
+The core workflows are packaged as [Cline skills](https://docs.cline.bot/customization/skills) under [skills/cline/](./skills/cline/), plus an always-on rule. Install both from your project root:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jpbaking/dox/main/install-cline.sh | sh
+```
+
+That drops the skills into `.cline/skills/` and the rule into `.clinerules/`. Append `-s -- --global` after `sh` to install for every project (`~/.cline/skills/` and `~/Documents/Cline/Rules`) instead. Re-run anytime to update; you can also just copy the folders by hand.
+
+The skills:
+
+- **`/dox-init`** — initialize the tree; the agent detects whether this is a new project (little or no code) or an existing codebase, and even fetches the framework AGENTS.md for you if it is missing.
+- **`/dox-child`** — give it a folder path; it runs the boundary test and either initializes that folder as a child doc (wired into the parent) or explains why it does not deserve one.
+- **`/dox-audit`** — read-only health check (lint); reports findings by severity, never edits.
+- **`/dox-fix`** — audit + auto-repair; fixes the mechanical problems, leaves judgment calls and nested roots to you.
+- **`/dox-upgrade`** — refresh the framework rules in the root AGENTS.md to the latest release, preserving all project content (User Preferences, Feature Map, Child DOX Index, imported rules), then reconcile the tree with `/dox-fix`.
+
+Cline also activates them automatically when your request matches ("lint the docs", "repair the DOX tree"). The skills defer to the procedures in your root AGENTS.md rather than duplicating them, so they stay correct as the framework evolves.
+
+The [rule](./rules/cline/dox.md) (installed by the script above) makes Cline find each edited file's DOX root (a workspace can hold several independent projects, each with its own root) and comply with that chain when one exists, and merely *suggest* `/dox-init` (once, one sentence) when none does — it never initializes on its own.
 
 ### New project (little or no code yet)
 
@@ -186,6 +208,7 @@ Modified by [jpbaking](https://github.com/jpbaking).
 - Added a leaf example and a sub-root example child AGENTS.md, and decoupled the initialization trigger from the Child DOX Index placeholder.
 - Added a **Feature Map** section: each doc — the root included, under the same rules — points its features to their entry and supporting source files, so an agent can start a feature with minimal code traversal and an architecture overview can be aggregated by walking the tree.
 - Added **nested roots**: any folder that carries its own root AGENTS.md — a git submodule, SVN external, Perforce mapped path, or other independently versioned subproject — keeps its full DOX rules and root shape, so the same doc works whichever folder an engineer roots their workspace at. The parent tree reads it as a local root but never rewrites it; conflicts are reported instead of "fixed," and changes inside it are called out as belonging to that project's own repository.
+- Added a **version marker** (`DOX vX.Y.Z`) at the top of the framework, so audits can detect an outdated framework and `/dox-upgrade` can migrate a project's rules without losing its content.
 - Trimmed jargon on the procedural path, and reworked the README "How to use" with scenario-specific prompts.
 
 **Why:** the original framework is principle-heavy — capable models infer the procedure from it, but weaker models struggle to comply. These changes turn the principles into explicit procedures so weaker models follow them reliably.
