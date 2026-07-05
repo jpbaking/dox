@@ -16,6 +16,14 @@ The agent keeps a hierarchy of AGENTS.md files as the project changes:
 
 The result is simple: traverse the docs, understand the local rules, make precise edits, keep the docs current. Less guessing. Less drift. Less "why did it touch that file?"
 
+## Who this fork is for
+
+This fork is tuned for **smaller / weaker models**. Where the original states principles and trusts the model to infer the procedure, this version spells everything out: numbered steps, mechanical tests, explicit exceptions repeated at the point of action. That reliability costs context.
+
+**Overhead:** the root AGENTS.md alone is ~15 KB — roughly **3.5–4k tokens** loaded into context every session, before any child doc on the path to your work area is read.
+
+**If you consistently run frontier models, use the original instead.** The [Agent Zero](https://github.com/agent0ai/agent-zero) framework this fork derives from is leaner and principle-based — a capable model follows it just as well at a fraction of the token cost. Pick this fork when cheaper or smaller models will be doing a meaningful share of the work.
+
 ## How to use
 
 Add DOX once, then use the prompt that fits your situation.
