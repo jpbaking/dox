@@ -13,7 +13,7 @@ $ErrorActionPreference = "Stop"
 $Repo = if ($env:DOX_REPO) { $env:DOX_REPO } else { "jpbaking/dox" }
 $Ref = if ($env:DOX_REF) { $env:DOX_REF } else { "main" }
 $Base = "https://raw.githubusercontent.com/$Repo/$Ref"
-$Skills = @("dox-init", "dox-child", "dox-audit", "dox-fix", "dox-upgrade")
+$Skills = @("dox-init", "dox-child", "dox-audit", "dox-fix", "dox-remap", "dox-upgrade")
 
 $Mode = if ($env:DOX_GLOBAL) { "global" } else { "workspace" }
 
@@ -49,6 +49,6 @@ foreach ($s in $Skills) {
 }
 Fetch "rules/cline/dox.md" (Join-Path $RulesDir "dox.md")
 
-Write-Host "Done. Skills: /dox-init /dox-child /dox-audit /dox-fix /dox-upgrade"
+Write-Host "Done. Skills: /dox-init /dox-child /dox-audit /dox-fix /dox-remap /dox-upgrade"
 Write-Host "Note: this does not add the framework itself - run /dox-init in Cline"
-Write-Host "(or copy AGENTS.md from https://github.com/$Repo) to set up a project."
+Write-Host "(or copy DOX.md from https://github.com/$Repo) to set up a project."

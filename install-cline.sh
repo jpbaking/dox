@@ -14,7 +14,7 @@ set -eu
 REPO="${DOX_REPO:-jpbaking/dox}"
 REF="${DOX_REF:-main}"
 BASE="https://raw.githubusercontent.com/$REPO/$REF"
-SKILLS="dox-init dox-child dox-audit dox-fix dox-upgrade"
+SKILLS="dox-init dox-child dox-audit dox-fix dox-remap dox-upgrade"
 
 MODE="workspace"
 if [ "${1:-}" = "--global" ]; then
@@ -54,6 +54,6 @@ for s in $SKILLS; do
 done
 fetch "rules/cline/dox.md" "$RULES_DIR/dox.md"
 
-echo "Done. Skills: /dox-init /dox-child /dox-audit /dox-fix /dox-upgrade"
+echo "Done. Skills: /dox-init /dox-child /dox-audit /dox-fix /dox-remap /dox-upgrade"
 echo "Note: this does not add the framework itself - run /dox-init in Cline"
-echo "(or copy AGENTS.md from https://github.com/$REPO) to set up a project."
+echo "(or copy DOX.md from https://github.com/$REPO) to set up a project."
