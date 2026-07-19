@@ -40,13 +40,24 @@ When unsure, do not create one — the nearest parent covers it. But **never ski
 
 **Sub-roots.** When a boundary is a self-contained submodule or subproject, treat its DOX.md as a *sub-root*: write it like a root (full local contract, plus its own workflow or verification rules where they differ from the parent) and build a normal DOX tree beneath it. A sub-root still may not weaken any rule from the docs above it.
 
-**Nested roots.** A sub-root that is also the root of its own independently versioned project is a *nested root* — a git submodule or nested git repo, an SVN external, a Perforce stream or mapped depot path, or any folder synced from another repository. The marker is the doc, not the version control system: **any folder whose DOX.md carries the full DOX rules is a nested root.** It plays two roles at once — root of its own project, sub-root inside this tree — so the same doc works whichever folder an engineer roots their workspace at. Follow these rules exactly:
+**Nested roots.** A sub-root that is also the root of its own independently versioned project is a *nested root* — a git submodule or nested git repo, an SVN external, a Perforce stream or mapped depot path, or any folder synced from another repository. The marker is the doc, not the version control system: **any descendant folder whose DOX.md carries the full DOX rules is a nested root. A pre-v3 nested root may instead carry those rules in AGENTS.md; recognize and protect it on the same terms.** It plays two roles at once — root of its own project, sub-root inside this tree — so the same doc works whichever folder an engineer roots their workspace at. Follow these rules exactly:
 
-1. **Leave its doc as it is.** A nested root keeps its full copy of the DOX rules and its root shape. Never rewrite it into Child Doc Shape and never strip its rules — that breaks the project when it is developed standalone.
-2. **Read it as a local root.** When walking the doc chain, treat the nested root's DOX.md as the root for everything beneath it; the parent chain still applies above it.
+1. **Leave its doc as it is.** A nested root keeps its full copy of the DOX rules, its root shape, and its current filename. Never rewrite it into Child Doc Shape, rename it from the parent project, or strip its rules — that breaks the project when it is developed standalone.
+2. **Read it as a local root.** When walking the doc chain, treat the nested root's DOX.md (or legacy AGENTS.md) as the root for everything beneath it; the parent chain still applies above it.
 3. **Never edit it to resolve a conflict.** If a nested root's rule conflicts with a parent rule, do not change the nested root — it is owned by another project. Report the conflict to the user and let them decide.
 4. **The parent speaks in its own doc.** Anything the parent expects from the nested project goes in the parent's DOX.md (its Child DOX Index line and, if needed, a Local Contract) — never into the nested root's doc.
 5. **Respect the repository boundary.** Any file change inside a nested root — its DOX.md included — belongs to that project's own version history: commit or submit it there, following that system's convention (for a git submodule, the parent repo then updates its submodule pointer). State this in your report whenever you touch files under a nested root.
+
+### Classify AGENTS.md before migration
+
+In v3, an AGENTS.md is not a DOX doc merely because of its filename. Classify it by content and location before any rename or rewrite:
+
+- **Root shim** — points to the sibling DOX.md. Keep it as AGENTS.md; never migrate it.
+- **Legacy framework root** — contains `# DOX framework`. At the project root it is the pre-v3 framework doc; below the project root it marks a legacy nested root that the parent project must not touch.
+- **Legacy child DOX doc** — follows Child Doc Shape, including `## Child DOX Index`, and has no sibling DOX.md. It may be migrated by the owning project.
+- **Unrelated or ambiguous harness file** — preserve it unchanged and report the ambiguity. Never assume it is a legacy DOX doc.
+
+Before any legacy rename, confirm the destination DOX.md does not exist. Never overwrite either file to resolve a collision.
 
 ## Child Doc Shape
 
@@ -146,14 +157,14 @@ Run this when asked to initialize or index the project. Work top-down, then recu
 
 1. **Map the folder.** List its directory tree. Skip vendored, build, and version-control dirs (`node_modules`, `dist`, `build`, `target`, `.git`, `.svn`, and similar). Write down each folder and a one-line note on its purpose.
 2. **Mark the boundaries.** Apply the boundary test (above) to every folder you listed. Mark each one "doc" or "no doc." Always mark submodules and subprojects "doc."
-3. **Recurse.** For each folder you marked "doc," repeat steps 1–2 *inside* that folder. Keep going until you reach folders that contain no further boundaries. Do not stop at the top level — go as deep as the structure goes. If any folder already carries its own root DOX.md with the full DOX rules, it is a nested root: keep its whole doc tree as it is, index it as a child, and do not rebuild anything inside it.
+3. **Recurse.** For each folder you marked "doc," repeat steps 1–2 *inside* that folder. Keep going until you reach folders that contain no further boundaries. Do not stop at the top level — go as deep as the structure goes. If any folder already carries its own root DOX.md — or a legacy AGENTS.md — with the full DOX rules, it is a nested root: keep its whole doc tree as it is, index it as a child, and do not rebuild anything inside it.
 4. **Write the docs.** Keep the DOX rules in the root DOX.md only — a nested root keeps its own copy; leave it unchanged. Write every other DOX.md using Child Doc Shape above; write a submodule or subproject as a sub-root. Leave Work Guidance and Verification empty where no standard or check exists yet.
 5. **Wire the indexes.** In every doc that has children, fill the Child DOX Index — one line per direct child, naming what it covers. Mark a leaf `(none)`.
 6. **Map the features.** In every doc — the root DOX.md included — fill the Feature Map with the features you can identify from the code, one bullet per feature, each with its Start file and supporting files. Put each feature in the doc closest to its code (see Feature Map locality); the root's map holds the project-spanning and primary features.
-7. **Shim other harnesses.** Create or update `AGENTS.md` in the project root to ensure other AI harnesses automatically follow DOX. If missing, create it; if existing, prepend: `This project uses the DOX framework. Do not add rules here. Read DOX.md in this directory and follow its instructions.`
+7. **Shim agent harnesses.** Ensure `AGENTS.md` in the project root points to DOX so Codex, Antigravity, Cline, and other compatible harnesses automatically follow it. If missing, create it with: `This project uses the DOX framework. Do not add DOX rules here. Read DOX.md in this directory and follow its instructions.` If it already contains that direction, leave it unchanged. If it contains unrelated harness instructions, prepend the direction once and preserve the existing text. If it contains the full legacy DOX framework, stop and use the upgrade procedure instead; never overwrite it as a shim. Then ensure Claude Code is bridged: if `CLAUDE.md` is missing, create it with `@AGENTS.md`; if it already imports `AGENTS.md` or directly tells Claude to read `DOX.md`, leave it unchanged; otherwise prepend `@AGENTS.md` and preserve its existing instructions.
 8. **Report.** Print the full tree you created and name any folder you deliberately left without a doc.
 
-Done when: every boundary at every depth has a DOX.md, every Child DOX Index is filled (or `(none)` at a leaf), each doc's Feature Map — the root's included — lists the features identifiable at its level, the `AGENTS.md` shim exists, and no index still reads "Not yet indexed" or "Not yet mapped."
+Done when: every boundary at every depth has a DOX.md, every Child DOX Index is filled (or `(none)` at a leaf), each doc's Feature Map — the root's included — lists the features identifiable at its level, the `AGENTS.md` and `CLAUDE.md` bridges exist, and no index still reads "Not yet indexed" or "Not yet mapped."
 
 ## Read Before Editing
 
@@ -161,7 +172,7 @@ Before editing any file:
 
 1. Read the root DOX.md.
 2. List the files and folders you expect to touch.
-3. For each target, walk from the root down to it, reading every DOX.md along the way — including any sub-root or nested root in the path.
+3. For each target, walk from the root down to it, reading every DOX.md along the way — including any sub-root or nested root in the path. During a partial pre-v3 migration, read a legacy child AGENTS.md when no DOX.md exists in that folder. Do not mistake the root AGENTS.md shim for a child doc.
 4. Treat the nearest DOX.md as the local contract and the parents as repo-wide rules.
 5. If two docs conflict, the closer one controls local details — but no child or sub-root may weaken DOX itself.
 
