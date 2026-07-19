@@ -30,6 +30,20 @@ function Fetch {
     Write-Host "  + $Destination"
 }
 
+function Copy-Local {
+    param(
+        [string]$Source,
+        [string]$Destination
+    )
+
+    $destinationDirectory = Split-Path -Parent $Destination
+    if ($destinationDirectory -and -not (Test-Path $destinationDirectory)) {
+        New-Item -ItemType Directory -Path $destinationDirectory -Force | Out-Null
+    }
+    Copy-Item -Path $Source -Destination $Destination -Force
+    Write-Host "  + $Destination"
+}
+
 function Has-Text {
     param(
         [string]$Path,
@@ -43,21 +57,24 @@ Write-Host "DOX universal workspace install from $Repo@$Ref"
 Write-Host "  into $(Get-Location)"
 
 # Codex, Antigravity, and current Cline share the open .agents location.
-# Claude Code uses the same skill format from its own discovery directory.
+# Claude Code uses the same skill format from its own discovery directory,
+# so each skill is fetched once and copied there.
 foreach ($skill in $Skills) {
-    foreach ($skillsDirectory in @(".agents\skills", ".claude\skills")) {
-        Fetch "skills/shared/$skill/SKILL.md" (Join-Path $skillsDirectory "$skill\SKILL.md")
-    }
+    Fetch "skills/shared/$skill/SKILL.md" (Join-Path ".agents\skills" "$skill\SKILL.md")
+    Copy-Local (Join-Path ".agents\skills" "$skill\SKILL.md") (Join-Path ".claude\skills" "$skill\SKILL.md")
 }
 
 # The rule text is shared; only its discovery path is host-specific.
-foreach ($ruleFile in @(".agents\rules\dox.md", ".claude\rules\dox.md", ".clinerules\dox.md")) {
-    Fetch "rules/shared/dox.md" $ruleFile
+Fetch "rules/shared/dox.md" ".agents\rules\dox.md"
+foreach ($ruleFile in @(".claude\rules\dox.md", ".clinerules\dox.md")) {
+    Copy-Local ".agents\rules\dox.md" $ruleFile
 }
 
 # Codex discovers AGENTS.md. Antigravity and Cline also understand it.
 if (-not (Test-Path "AGENTS.md")) {
     Fetch "AGENTS.md" "AGENTS.md"
+} elseif (Has-Text "AGENTS.md" "# DOX framework") {
+    Write-Host "  ! AGENTS.md is a legacy (pre-v3) DOX framework root; run the dox-upgrade skill to migrate it"
 } elseif (-not (Has-Text "AGENTS.md" "DOX.md")) {
     Write-Host "  ! kept existing AGENTS.md; make sure it tells agents to read DOX.md"
 } else {
@@ -73,6 +90,6 @@ if (-not (Test-Path "CLAUDE.md")) {
     Write-Host "  = kept existing CLAUDE.md"
 }
 
-Write-Host "Done. Installed skills: dox-init, dox-child, dox-audit, dox-fix, dox-remap, dox-upgrade"
+Write-Host "Done. Installed skills: $($Skills -join ', ')"
 Write-Host "Next: ask your agent to use the dox-init skill to add the framework."
 Write-Host 'Explicit syntax varies: Codex uses a $ skill mention; Claude, Antigravity, and Cline support /dox-init.'

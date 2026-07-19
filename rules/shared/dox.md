@@ -2,9 +2,9 @@
 
 DOX is a hierarchy of DOX.md files. A folder whose DOX.md contains the heading `# DOX framework` is a **DOX root**: the binding contract for everything beneath it. A workspace may contain several independent projects, each with its own DOX root — do not assume the workspace root is the only place to look.
 
-Before your first edit to any file, find that file's DOX root: walk up from the file toward the workspace root and take the **topmost** ancestor folder whose DOX.md contains `# DOX framework`. Files under different projects may have different DOX roots; judge each file by its own.
+Before your first edit to any file, find that file's DOX root: walk up from the file toward the workspace root and take the **topmost** ancestor folder whose DOX.md — or, in a folder with no DOX.md, whose AGENTS.md — contains `# DOX framework`. Files under different projects may have different DOX roots; judge each file by its own.
 
-**Legacy detection:** if a folder has no `DOX.md` but has an `AGENTS.md` containing `# DOX framework`, it is a DOX root using the **legacy filename** (pre-v3). Treat it as governed (below) but also suggest the `dox-upgrade` skill once. An `AGENTS.md` that merely points to a sibling `DOX.md` is a shim, not a legacy framework doc.
+**Legacy detection:** a root whose `# DOX framework` rules live in `AGENTS.md` rather than `DOX.md` uses the **legacy filename** (pre-v3). Treat it as governed (below) but also suggest the `dox-upgrade` skill once. An `AGENTS.md` that merely points to a sibling `DOX.md` is a shim, not a legacy framework doc.
 
 **Governed** — the file has a DOX root above it:
 

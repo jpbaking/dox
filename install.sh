@@ -31,6 +31,14 @@ fetch() {
   echo "  + $dest"
 }
 
+copy() {
+  src="$1"
+  dest="$2"
+  mkdir -p "$(dirname "$dest")"
+  cp "$src" "$dest"
+  echo "  + $dest"
+}
+
 has_text() {
   file="$1"
   text="$2"
@@ -41,21 +49,24 @@ echo "DOX universal workspace install from $REPO@$REF"
 echo "  into $(pwd)"
 
 # Codex, Antigravity, and current Cline share the open .agents location.
-# Claude Code uses the same skill format from its own discovery directory.
+# Claude Code uses the same skill format from its own discovery directory,
+# so each skill is fetched once and copied there.
 for skill in $SKILLS; do
-  for skills_dir in .agents/skills .claude/skills; do
-    fetch "skills/shared/$skill/SKILL.md" "$skills_dir/$skill/SKILL.md"
-  done
+  fetch "skills/shared/$skill/SKILL.md" ".agents/skills/$skill/SKILL.md"
+  copy ".agents/skills/$skill/SKILL.md" ".claude/skills/$skill/SKILL.md"
 done
 
 # The rule text is shared; only its discovery path is host-specific.
-for rule_file in .agents/rules/dox.md .claude/rules/dox.md .clinerules/dox.md; do
-  fetch "rules/shared/dox.md" "$rule_file"
+fetch "rules/shared/dox.md" ".agents/rules/dox.md"
+for rule_file in .claude/rules/dox.md .clinerules/dox.md; do
+  copy ".agents/rules/dox.md" "$rule_file"
 done
 
 # Codex discovers AGENTS.md. Antigravity and Cline also understand it.
 if [ ! -e AGENTS.md ]; then
   fetch "AGENTS.md" "AGENTS.md"
+elif has_text "AGENTS.md" "# DOX framework"; then
+  echo "  ! AGENTS.md is a legacy (pre-v3) DOX framework root; run the dox-upgrade skill to migrate it"
 elif ! has_text "AGENTS.md" "DOX.md"; then
   echo "  ! kept existing AGENTS.md; make sure it tells agents to read DOX.md"
 else
@@ -71,6 +82,6 @@ else
   echo "  = kept existing CLAUDE.md"
 fi
 
-echo "Done. Installed skills: dox-init, dox-child, dox-audit, dox-fix, dox-remap, dox-upgrade"
+echo "Done. Installed skills: $SKILLS"
 echo "Next: ask your agent to use the dox-init skill to add the framework."
 echo "Explicit syntax varies: Codex uses a \$ skill mention; Claude, Antigravity, and Cline support /dox-init."

@@ -55,7 +55,7 @@ The shared `SKILL.md` files use only the portable `name` and `description` metad
 
 There is no universal command prefix or autocomplete UI. The portable instruction is plain language: **"Use the `dox-init` skill."** Each agent can also select the skill automatically from its description when the request matches.
 
-Cline's skills page still lists `.cline/skills/`, `.clinerules/skills/`, and `.claude/skills/`, but Cline 3.67 moved its first-party PR skill to `.agents/skills/`; the installer follows that newer shared project convention. The `.clinerules/dox.md` adapter remains because Cline's rule discovery is separate from skill discovery.
+Cline's skills page still lists `.cline/skills/`, `.clinerules/skills/`, and `.claude/skills/`, but Cline 3.67 moved its first-party PR skill to `.agents/skills/`; the installer follows that newer shared project convention. A Cline version that does not yet scan `.agents/skills/` still discovers the same skills through the `.claude/skills/` copy, which its skills page documents. The `.clinerules/dox.md` adapter remains because Cline's rule discovery is separate from skill discovery.
 
 <details>
 <summary><strong>Windows / PowerShell</strong></summary>
