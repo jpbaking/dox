@@ -53,8 +53,8 @@ ensure_gitignore() {
     echo "  = kept existing .gitignore DOX adapter block"
     return
   fi
+  if [ -s "$file" ]; then printf '\n' >> "$file"; fi
   {
-    [ -s "$file" ] && printf '\n'
     printf '%s\n' "$GI_MARK"
     for skill in $SKILLS; do
       printf '.agents/skills/%s/\n.claude/skills/%s/\n' "$skill" "$skill"
