@@ -45,6 +45,25 @@ has_text() {
   [ -f "$file" ] && grep -F "$text" "$file" >/dev/null 2>&1
 }
 
+GI_MARK="# DOX installer-managed agent adapters (generated; do not edit or commit)"
+
+ensure_gitignore() {
+  file=".gitignore"
+  if has_text "$file" "$GI_MARK"; then
+    echo "  = kept existing .gitignore DOX adapter block"
+    return
+  fi
+  {
+    [ -s "$file" ] && printf '\n'
+    printf '%s\n' "$GI_MARK"
+    for skill in $SKILLS; do
+      printf '.agents/skills/%s/\n.claude/skills/%s/\n' "$skill" "$skill"
+    done
+    printf '.agents/rules/dox.md\n.claude/rules/dox.md\n.clinerules/dox.md\n'
+  } >> "$file"
+  echo "  + .gitignore (DOX adapter entries; AGENTS.md / CLAUDE.md bridges stay tracked)"
+}
+
 echo "DOX universal workspace install from $REPO@$REF"
 echo "  into $(pwd)"
 
@@ -81,6 +100,9 @@ elif ! has_text "CLAUDE.md" "AGENTS.md" && ! has_text "CLAUDE.md" "DOX.md"; then
 else
   echo "  = kept existing CLAUDE.md"
 fi
+
+# Installed adapters are generated files; keep them out of the target's history.
+ensure_gitignore
 
 echo "Done. Installed skills: $SKILLS"
 echo "Next: ask your agent to use the dox-init skill to add the framework."

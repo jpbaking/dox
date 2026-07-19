@@ -34,13 +34,23 @@ The prompts below are written out step by step on purpose. Smaller models follow
 
 ### Install for Codex, Claude Code, Antigravity, and Cline
 
-The core workflows are portable [Agent Skills](https://agentskills.io/) under [skills/shared/](./skills/shared/). One workspace installer configures them, plus the small instruction adapters each agent needs. Run it from your project root:
+The core workflows are portable [Agent Skills](https://agentskills.io/) under [skills/shared/](./skills/shared/). Two install paths configure them plus the small instruction adapters each agent needs.
+
+**Preferred: let your agent install it.** An agent can merge with whatever your project already has — existing `AGENTS.md` / `CLAUDE.md` content, ignore rules, same-named skills — instead of colliding with it. Paste this into any of the supported agents from your project root:
+
+```
+Fetch https://raw.githubusercontent.com/jpbaking/dox/main/AGENT-INSTALL.md and follow its instructions exactly to install DOX into this project. Merge with — never blindly overwrite — any existing AGENTS.md, CLAUDE.md, rule, or ignore files, and report every file you created or changed.
+```
+
+The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative install contract: it audits for skill-name collisions first, preserves existing root instruction files, and gitignores the generated adapters so they stay out of your project's history.
+
+**Alternative: the script installer.** Run it from your project root:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/jpbaking/dox/main/install.sh | sh
 ```
 
-The installer is project-scoped. It writes each shared skill to `.agents/skills/` for Codex, Google Antigravity, and Cline, and to `.claude/skills/` for Claude Code. It also installs the same DOX rule in each host-specific rule directory and creates `AGENTS.md` / `CLAUDE.md` shims when those files do not already exist. Existing root instruction files are preserved and reported instead of overwritten. Re-run anytime to update DOX-owned files.
+Both paths are project-scoped and produce the same layout. Each shared skill goes to `.agents/skills/` for Codex, Google Antigravity, and Cline, and to `.claude/skills/` for Claude Code. The same DOX rule is installed in each host-specific rule directory, and `AGENTS.md` / `CLAUDE.md` shims are created only when those files do not already exist. Existing root instruction files are preserved and reported instead of overwritten. The generated skill and rule adapters are added to your `.gitignore` (the root shims and `DOX.md` stay tracked — they are shared project files). On a fresh clone the adapters are therefore absent: the committed `AGENTS.md` / `CLAUDE.md` / `DOX.md` still work on their own, and re-running either install path regenerates the skills and rules. Re-run anytime to update DOX-owned files.
 
 Separate workflow files are intentionally not installed: all four agents can use an Agent Skill as a reusable workflow, while their dedicated workflow directories and formats are not compatible with one another.
 

@@ -90,6 +90,25 @@ if (-not (Test-Path "CLAUDE.md")) {
     Write-Host "  = kept existing CLAUDE.md"
 }
 
+# Installed adapters are generated files; keep them out of the target's history.
+$GitignoreMark = "# DOX installer-managed agent adapters (generated; do not edit or commit)"
+if (Has-Text ".gitignore" $GitignoreMark) {
+    Write-Host "  = kept existing .gitignore DOX adapter block"
+} else {
+    $entries = @($GitignoreMark)
+    foreach ($skill in $Skills) {
+        $entries += ".agents/skills/$skill/"
+        $entries += ".claude/skills/$skill/"
+    }
+    $entries += @(".agents/rules/dox.md", ".claude/rules/dox.md", ".clinerules/dox.md")
+    $block = ($entries -join "`n") + "`n"
+    if ((Test-Path ".gitignore") -and (Get-Item ".gitignore").Length -gt 0) {
+        $block = "`n" + $block
+    }
+    Add-Content -Path ".gitignore" -Value $block -NoNewline
+    Write-Host "  + .gitignore (DOX adapter entries; AGENTS.md / CLAUDE.md bridges stay tracked)"
+}
+
 Write-Host "Done. Installed skills: $($Skills -join ', ')"
 Write-Host "Next: ask your agent to use the dox-init skill to add the framework."
 Write-Host 'Explicit syntax varies: Codex uses a $ skill mention; Claude, Antigravity, and Cline support /dox-init.'
