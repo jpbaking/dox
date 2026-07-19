@@ -1,29 +1,22 @@
 ---
 name: dox-remap
-description: Deep-scan the codebase and rebuild or refine every Feature Map in the DOX tree. Reads source code, discovers unmapped features, retires defunct entries, fixes orphaned or mislocated entries, and improves descriptions, Start files, and file lists. Use when the user asks to remap features, refresh the Feature Maps, do a deep scan, or when a stronger model is available to improve the maps. Not for structural repairs — that is dox-fix.
+description: Deep-scan the codebase and rebuild or refine every Feature Map in the DOX tree. Reads source code, discovers unmapped features, retires defunct entries, fixes orphaned or mislocated entries, and improves descriptions, Start files, and file lists. Use when the user asks to remap features, refresh the maps, or do a deep scan; after a large refactor; when maps are shallow or outdated; when a stronger model is available; or for a periodic deep refresh. Not for structural repairs — that is dox-fix.
 ---
 
 # DOX Remap
 
-Re-read the source code and rebuild every Feature Map in the DOX tree. This is the deep, code-aware pass — it goes beyond the mechanical checks in `/dox-audit` and `/dox-fix` by actually reading source files to understand what they do.
-
-## When to use
-
-- After a large refactor that moved code across subtrees.
-- When Feature Maps were written by a weaker model and a stronger model is now available.
-- When the user suspects the maps are shallow, incomplete, or poorly described.
-- Periodically, to keep the maps accurate as the codebase evolves.
+Re-read the source code and rebuild every Feature Map in the DOX tree. This is the deep, code-aware pass — it goes beyond the mechanical checks in the `dox-audit` and `dox-fix` skills by actually reading source files to understand what they do.
 
 ## Step 0 — Preconditions
 
-1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest `/dox-init`. If the legacy filename is found, suggest `/dox-upgrade` first.
-2. Read the root doc fully, especially the **Feature Map** section (format, locality rules, "Keep it current").
+1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the legacy filename is found, suggest `dox-upgrade` first.
+2. Read the root doc fully, especially the **Feature Map** section (format, locality rules, "Keep it current"). Inventory descendant roots under both the current `DOX.md` filename and legacy `AGENTS.md`; they are out of scope.
 
 If the user named a specific folder, scope every step below to that subtree only.
 
 ## Step 1 — Walk the tree and read the code
 
-For every DOX.md in scope (root included), do the following:
+For every DOX.md in scope (root included), do the following. Stop traversal at any descendant folder whose `DOX.md` or legacy `AGENTS.md` contains the full root rules.
 
 1. **Read the existing Feature Map** in that doc. Note every feature currently listed.
 2. **Read the source files** in that doc's subtree (skip vendored, build, and VCS dirs). For each meaningful source file, note what feature or capability it contributes to.
@@ -53,7 +46,7 @@ For each doc in scope:
    ```
 2. Respect **locality**: put each feature in the DOX.md closest to its code. If a feature spans multiple children, put it in the lowest common parent and point to the children (`Detail in ./child`).
 3. For entries that moved between docs, update both the source and destination docs.
-4. Do NOT touch nested roots — list any findings for those and note they must be remapped inside their own project.
+4. Do NOT touch or recurse into nested roots under either filename — list any findings visible at the boundary and note they must be remapped inside their own project.
 5. Do NOT change anything outside the Feature Map sections — leave Purpose, Ownership, Local Contracts, Child DOX Index, etc. untouched.
 
 ## Step 4 — Quality checks
