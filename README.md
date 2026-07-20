@@ -28,55 +28,36 @@ This fork is tuned for **smaller / weaker models**. Where the original states pr
 
 Add DOX once, then use the prompt that fits your situation.
 
-**Add DOX.** Copy [DOX.md](./DOX.md?plain=1), the lightweight [AGENTS.md shim](./AGENTS.md?plain=1), and the [CLAUDE.md import](./CLAUDE.md?plain=1) into your project root. There are no dependencies or runtime: Codex, Antigravity, and Cline discover the `AGENTS.md` bridge, while Claude Code imports it through `CLAUDE.md`.
+**Add DOX.** Copy [DOX.md](./DOX.md?plain=1), the lightweight [AGENTS.md shim](./AGENTS.md?plain=1), and the [CLAUDE.md import](./CLAUDE.md?plain=1) into your project root. There are no dependencies or runtime: Codex, Antigravity, Cline, and Cursor discover the `AGENTS.md` bridge (Cursor reads root and nested `AGENTS.md` natively), while Claude Code imports it through `CLAUDE.md`.
 
 The prompts below are written out step by step on purpose. Smaller models follow numbered, explicit instructions far more reliably than short ones, so prefer these full versions.
 
-### Install for Codex, Claude Code, Antigravity, and Cline
+### Install for Codex, Claude Code, Antigravity, Cline, and Cursor
 
-The core workflows are portable [Agent Skills](https://agentskills.io/) under [skills/shared/](./skills/shared/). Two install paths configure them plus the small instruction adapters each agent needs.
-
-**Preferred: let your agent install it.** An agent can merge with whatever your project already has — existing `AGENTS.md` / `CLAUDE.md` content, ignore rules, same-named skills — instead of colliding with it. Paste this into any of the supported agents from your project root:
+The core workflows are portable [Agent Skills](https://agentskills.io/) under [skills/shared/](./skills/shared/). Installation is agent-guided only — there are no install scripts. Paste this into any of the supported agents:
 
 ```
-Fetch https://raw.githubusercontent.com/jpbaking/dox/main/AGENT-INSTALL.md and follow its instructions exactly to install DOX into this project. Merge with — never blindly overwrite — any existing AGENTS.md, CLAUDE.md, rule, or ignore files, and report every file you created or changed.
+Fetch https://raw.githubusercontent.com/jpbaking/dox/main/AGENT-INSTALL.md and follow its instructions exactly to install DOX. Merge with — never blindly overwrite — any existing global instruction files, and report every file you created or changed.
 ```
 
-The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative install contract: it audits for skill-name collisions first, preserves existing root instruction files, and gitignores the generated adapters so they stay out of your project's history.
+The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative install contract: the agent acquires the DOX sources itself (`git clone`, repo zip, or `gh`) in a temporary directory, audits for skill-name collisions, and copies the six skills and the rule into your **user-global** discovery paths — `~/.agents/skills/` (Codex), `~/.claude/skills/` (Claude Code), `~/.gemini/config/skills/` (Antigravity), `~/.cline/skills/` (Cline), with the rule in each harness's global rules location. Cursor needs no separate copy — it discovers `~/.agents/skills/` (and `~/.claude/skills/`) natively; its User Rules are app settings, so paste the pointer block there once if you want the always-on rule in Cursor. Nothing is written into any project, and no project `.gitignore` is touched. Re-run anytime to update; the install is per-user and per-machine.
 
-**Alternative: the script installer.** Run it from your project root:
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/jpbaking/dox/main/install.sh | sh
-```
-
-Both paths are project-scoped and produce the same layout. Each shared skill goes to `.agents/skills/` for Codex, Google Antigravity, and Cline, and to `.claude/skills/` for Claude Code. The same DOX rule is installed in each host-specific rule directory, and `AGENTS.md` / `CLAUDE.md` shims are created only when those files do not already exist. Existing root instruction files are preserved and reported instead of overwritten. The generated skill and rule adapters are added to your `.gitignore` (the root shims and `DOX.md` stay tracked — they are shared project files). On a fresh clone the adapters are therefore absent: the committed `AGENTS.md` / `CLAUDE.md` / `DOX.md` still work on their own, and re-running either install path regenerates the skills and rules. Re-run anytime to update DOX-owned files.
+What lives in a project is **project truth, committed**: the `DOX.md` tree plus the root `AGENTS.md` shim and `CLAUDE.md` import, created or merged by `dox-init` / `dox-upgrade`. Those anchors mean a teammate's fresh clone steers any agent to `DOX.md` with zero tooling installed — following a DOX tree requires no skills, only reading. Teams can keep their own project-specific agent rules in the same anchor files; the shim is added alongside, never replacing them.
 
 Separate workflow files are intentionally not installed: all four agents can use an Agent Skill as a reusable workflow, while their dedicated workflow directories and formats are not compatible with one another.
 
 | Agent | Persistent project guidance | Installed skill location | Explicit invocation |
 | --- | --- | --- | --- |
-| [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | `AGENTS.md` | `.agents/skills/` | Type `$` and select `dox-init`, or browse with `/skills` |
-| [Claude Code](https://code.claude.com/docs/en/memory) | `CLAUDE.md` and `.claude/rules/` | `.claude/skills/` | `/dox-init` |
-| [Google Antigravity](https://antigravity.google/docs/rules-workflows) | `.agents/rules/` | `.agents/skills/` | `/dox-init`, or browse with `/skills` |
-| [Cline](https://docs.cline.bot/customization/cline-rules) | `AGENTS.md` and `.clinerules/` | `.agents/skills/` ([current Cline source](https://github.com/cline/cline/blob/main/CHANGELOG.md)) | `/dox-init` |
+| [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | project `AGENTS.md` anchor + pointer block in `~/.codex/AGENTS.md` | `~/.agents/skills/` | Type `$` and select `dox-init`, or browse with `/skills` |
+| [Claude Code](https://code.claude.com/docs/en/memory) | project `CLAUDE.md` anchor + pointer block in `~/.claude/CLAUDE.md` | `~/.claude/skills/` | `/dox-init` |
+| [Google Antigravity](https://antigravity.google/docs/rules-workflows) | `~/.gemini/config/rules/dox.md` (auto-loaded) | `~/.gemini/config/skills/` | `/dox-init`, or browse with `/skills` |
+| [Cline](https://docs.cline.bot/customization/cline-rules) | project `AGENTS.md` anchor + global Rules dir (`~/Cline/Rules/` on Linux) | `~/.cline/skills/` | `/dox-init` |
 
 The shared `SKILL.md` files use only the portable `name` and `description` metadata. Host-only fields and host-only workflow formats stay out of the common source.
 
 There is no universal command prefix or autocomplete UI. The portable instruction is plain language: **"Use the `dox-init` skill."** Each agent can also select the skill automatically from its description when the request matches.
 
-Cline's skills page still lists `.cline/skills/`, `.clinerules/skills/`, and `.claude/skills/`, but Cline 3.67 moved its first-party PR skill to `.agents/skills/`; the installer follows that newer shared project convention. A Cline version that does not yet scan `.agents/skills/` still discovers the same skills through the `.claude/skills/` copy, which its skills page documents. The `.clinerules/dox.md` adapter remains because Cline's rule discovery is separate from skill discovery.
-
-<details>
-<summary><strong>Windows / PowerShell</strong></summary>
-
-```powershell
-irm https://raw.githubusercontent.com/jpbaking/dox/main/install.ps1 | iex
-```
-
-This performs the same project-scoped installation on Windows. Override the source repository or ref with `$env:DOX_REPO` and `$env:DOX_REF` if needed.
-
-</details>
+Each harness gets its own byte-identical global skill copy because global discovery paths are not shared: Codex reads `~/.agents/skills/` (and `~/.codex/skills/`), Cline reads `~/.cline/skills/`, Antigravity reads `~/.gemini/config/skills/`, and Claude Code reads `~/.claude/skills/`.
 
 The skills:
 
