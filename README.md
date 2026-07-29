@@ -28,36 +28,55 @@ This fork is tuned for **smaller / weaker models**. Where the original states pr
 
 Add DOX once, then use the prompt that fits your situation.
 
-**Add DOX.** Copy [DOX.md](./DOX.md?plain=1), the lightweight [AGENTS.md shim](./AGENTS.md?plain=1), and the [CLAUDE.md import](./CLAUDE.md?plain=1) into your project root. There are no dependencies or runtime: Codex, Antigravity, Cline, and Cursor discover the `AGENTS.md` bridge (Cursor reads root and nested `AGENTS.md` natively), while Claude Code imports it through `CLAUDE.md`.
+**Add DOX.** Copy [DOX.md](./DOX.md?plain=1), the lightweight
+[AGENTS.md shim](./AGENTS.md?plain=1), and the
+[CLAUDE.md import](./CLAUDE.md?plain=1) into your project root. There are no
+dependencies or runtime: Antigravity CLI, Codex, Cline, and Pi discover the
+`AGENTS.md` bridge, while Claude Code imports it through `CLAUDE.md`.
 
 The prompts below are written out step by step on purpose. Smaller models follow numbered, explicit instructions far more reliably than short ones, so prefer these full versions.
 
-### Install for Codex, Claude Code, Antigravity, Cline, and Cursor
+### Install for Antigravity CLI, Codex, Claude Code, Cline, and Pi
 
-The core workflows are portable [Agent Skills](https://agentskills.io/) under [skills/shared/](./skills/shared/). Installation is agent-guided only — there are no install scripts. Paste this into any of the supported agents:
+The core workflows are portable [Agent Skills](https://agentskills.io/) under [.agents/skills/](./.agents/skills/). Installation is agent-guided only — there are no install scripts. Paste this into any of the supported agents:
 
 ```
 Fetch https://raw.githubusercontent.com/jpbaking/dox/main/AGENT-INSTALL.md and follow its instructions exactly to install DOX. Merge with — never blindly overwrite — any existing global instruction files, and report every file you created or changed.
 ```
 
-The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative install contract: the agent acquires the DOX sources itself (`git clone`, repo zip, or `gh`) in a temporary directory, audits for skill-name collisions, and copies the six skills and the rule into your **user-global** discovery paths — `~/.agents/skills/` (Codex), `~/.claude/skills/` (Claude Code), `~/.gemini/config/skills/` (Antigravity), `~/.cline/skills/` (Cline), with the rule in each harness's global rules location. Cursor needs no separate copy — it discovers `~/.agents/skills/` (and `~/.claude/skills/`) natively; its User Rules are app settings, so paste the pointer block there once if you want the always-on rule in Cursor. Nothing is written into any project, and no project `.gitignore` is touched. Re-run anytime to update; the install is per-user and per-machine.
+The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative
+install contract: the agent acquires the DOX sources itself (`git clone`, repo
+zip, or `gh`) in a temporary directory, audits for skill-name collisions, and
+copies the six skills into your **user-global** discovery paths:
+`~/.agents/skills/` (Codex and Pi), `~/.claude/skills/` (Claude Code),
+`~/.gemini/antigravity-cli/skills/` (Antigravity CLI), and
+`~/.cline/skills/` (Cline). The shared rule body is stored once under
+`~/.agents/rules/` and referenced from each selected host's global instruction
+file. Nothing is written into any project, and no project `.gitignore` is
+touched. Re-run anytime to update; the install is per-user and per-machine.
 
 What lives in a project is **project truth, committed**: the `DOX.md` tree plus the root `AGENTS.md` shim and `CLAUDE.md` import, created or merged by `dox-init` / `dox-upgrade`. Those anchors mean a teammate's fresh clone steers any agent to `DOX.md` with zero tooling installed — following a DOX tree requires no skills, only reading. Teams can keep their own project-specific agent rules in the same anchor files; the shim is added alongside, never replacing them.
 
-Separate workflow files are intentionally not installed: all four agents can use an Agent Skill as a reusable workflow, while their dedicated workflow directories and formats are not compatible with one another.
+Separate global workflow files are unnecessary: every supported harness can
+use the Agent Skills directly. An explicit project install includes thin Cline
+workflow shims.
 
 | Agent | Persistent project guidance | Installed skill location | Explicit invocation |
 | --- | --- | --- | --- |
-| [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | project `AGENTS.md` anchor + pointer block in `~/.codex/AGENTS.md` | `~/.agents/skills/` | Type `$` and select `dox-init`, or browse with `/skills` |
+| [Antigravity CLI](https://antigravity.google/docs/cli-overview) | project `AGENTS.md` + pointer in `~/.gemini/GEMINI.md` | `~/.gemini/antigravity-cli/skills/` | `/dox-init` |
+| [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | project `AGENTS.md` + pointer in `~/.codex/AGENTS.md` | `~/.agents/skills/` | Type `$` and select `dox-init`, or browse with `/skills` |
 | [Claude Code](https://code.claude.com/docs/en/memory) | project `CLAUDE.md` anchor + pointer block in `~/.claude/CLAUDE.md` | `~/.claude/skills/` | `/dox-init` |
-| [Google Antigravity](https://antigravity.google/docs/rules-workflows) | `~/.gemini/config/rules/dox.md` (auto-loaded) | `~/.gemini/config/skills/` | `/dox-init`, or browse with `/skills` |
-| [Cline](https://docs.cline.bot/customization/cline-rules) | project `AGENTS.md` anchor + global Rules dir (`~/Cline/Rules/` on Linux) | `~/.cline/skills/` | `/dox-init` |
+| [Cline](https://docs.cline.bot/customization/cline-rules) | project `AGENTS.md` + pointer in `~/.agents/AGENTS.md` | `~/.cline/skills/` | `/dox-init` |
+| [Pi](https://pi.dev/) | project `AGENTS.md` + pointer in `~/.pi/agent/AGENTS.md` | `~/.agents/skills/` | `/skill:dox-init` when enabled |
 
 The shared `SKILL.md` files use only the portable `name` and `description` metadata. Host-only fields and host-only workflow formats stay out of the common source.
 
 There is no universal command prefix or autocomplete UI. The portable instruction is plain language: **"Use the `dox-init` skill."** Each agent can also select the skill automatically from its description when the request matches.
 
-Each harness gets its own byte-identical global skill copy because global discovery paths are not shared: Codex reads `~/.agents/skills/` (and `~/.codex/skills/`), Cline reads `~/.cline/skills/`, Antigravity reads `~/.gemini/config/skills/`, and Claude Code reads `~/.claude/skills/`.
+Global skill copies remain byte-identical. Codex and Pi share
+`~/.agents/skills/`; Cline reads `~/.cline/skills/`; Antigravity CLI reads
+`~/.gemini/antigravity-cli/skills/`; Claude Code reads
+`~/.claude/skills/`.
 
 The skills:
 
@@ -254,6 +273,6 @@ Modified by [jpbaking](https://github.com/jpbaking).
 - Added **nested roots**: any descendant folder that carries full root rules in DOX.md or legacy AGENTS.md — a git submodule, SVN external, Perforce mapped path, or other independently versioned subproject — keeps its full rules, root shape, and current filename. The parent tree reads it as a local root but never rewrites it; conflicts are reported instead of "fixed."
 - Added a **version marker** (`DOX vX.Y.Z`) at the top of the framework, so audits can detect an outdated framework and `dox-upgrade` can migrate a project's rules without losing its content.
 - Trimmed jargon on the procedural path, and reworked the README "How to use" with scenario-specific prompts.
-- **Renamed `AGENTS.md` → `DOX.md`** across the entire framework. The filename `AGENTS.md` is now a convention shared by multiple frontier AI coding harnesses (Codex, Claude Code, Copilot, Cursor, etc.), so using it for the DOX framework created conflicts. `DOX.md` is unique to this framework and avoids collisions. To ensure these harnesses still automatically follow DOX, the framework now creates and maintains a lightweight `AGENTS.md` shim pointing them to `DOX.md`.
+- **Renamed `AGENTS.md` → `DOX.md`** across the entire framework. The filename `AGENTS.md` is now a convention shared by multiple coding-agent harnesses, so using it for the DOX framework created conflicts. `DOX.md` is unique to this framework and avoids collisions. To ensure compatible harnesses still automatically follow DOX, the framework now creates and maintains a lightweight `AGENTS.md` shim pointing them to `DOX.md`.
 
 **Why:** the original framework is principle-heavy — capable models infer the procedure from it, but weaker models struggle to comply. These changes turn the principles into explicit procedures so weaker models follow them reliably.

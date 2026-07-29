@@ -31,28 +31,33 @@ Copy from this staging directory below; delete it when done.
 
 Check for same-named `dox-*` skills in the global directories listed below
 and, if you are inside a project, under its `.agents/skills/`,
-`.claude/skills/`, `.cline/skills/`. Report anything you find; a
+`.claude/skills/`, `.cline/skills/`, `.clinerules/skills/`, and
+`.pi/skills/`. Report anything you find; a
 project-level copy with the same name can shadow or duplicate the global
 install (old project-scoped DOX installs left gitignored adapters — suggest
 removing them only with user approval).
 
+Also check for this toolkit's legacy rule copies under
+`~/.gemini/config/rules/` and the Cline Rules directories. Confirm which of
+Antigravity CLI, Codex, Claude Code, Cline, and Pi the user wants; do not
+infer consent from detected configuration directories.
+
 ## 3. Install the skills (byte-identical copies)
 
 For each skill `dox-init`, `dox-child`, `dox-audit`, `dox-fix`, `dox-remap`,
-`dox-upgrade`, copy `skills/shared/<skill>/SKILL.md` to each selected
-harness's global skills directory (ask which harnesses if unclear; all four
-is a safe default):
+`dox-upgrade`, copy the whole `.agents/skills/<skill>/` directory to each
+selected harness's global skills directory:
 
 | Harness | Destination |
 | --- | --- |
-| Codex | `~/.agents/skills/<skill>/SKILL.md` |
-| Claude Code | `~/.claude/skills/<skill>/SKILL.md` |
-| Antigravity | `~/.gemini/config/skills/<skill>/SKILL.md` |
-| Cline | `~/.cline/skills/<skill>/SKILL.md` |
+| Antigravity CLI (`agy`) | `~/.gemini/antigravity-cli/skills/<skill>/` |
+| Codex | `~/.agents/skills/<skill>/` |
+| Claude Code | `~/.claude/skills/<skill>/` |
+| Cline | `~/.cline/skills/<skill>/` |
+| Pi | `~/.agents/skills/<skill>/` |
 
-Cursor needs **no separate copy**: it natively discovers `~/.agents/skills/`
-(and `~/.claude/skills/` / `~/.codex/skills/` as compatibility paths). Do
-not install to `~/.cursor/skills/` — that would create a duplicate.
+Codex and Pi share one physical `~/.agents/skills/` copy. If both are
+selected, install it once.
 
 All copies must be byte-identical across harnesses. Never touch other
 skills.
@@ -64,16 +69,21 @@ or legacy `AGENTS.md` carrying `# DOX framework`) and, in ungoverned
 projects, limits itself to a one-sentence suggestion. It is safe to load
 globally.
 
-1. Copy `rules/shared/dox.md` to `~/.agents/rules/dox.md` (neutral shared
-   location) and `~/.gemini/config/rules/dox.md` (auto-loaded by
-   Antigravity).
-2. Cline: copy it to `~/Cline/Rules/dox.md` on Linux, or
-   `~/Documents/Cline/Rules/dox.md` on macOS/Windows (if both exist, use the
-   populated one).
-3. Codex and Claude Code load global guidance from user-owned files — merge,
-   never overwrite. Append this marker-guarded block once (skip if the
-   marker is present) to **both** `~/.codex/AGENTS.md` and
-   `~/.claude/CLAUDE.md` (create either file if missing):
+1. Copy `rules/shared/dox.md` to `~/.agents/rules/dox.md`.
+2. For each selected harness, merge the marker-guarded block below into its
+   user-owned global instruction file:
+
+   | Harness | Instruction file |
+   | --- | --- |
+   | Antigravity CLI (`agy`) | `~/.gemini/GEMINI.md` |
+   | Codex | `~/.codex/AGENTS.md` |
+   | Claude Code | `~/.claude/CLAUDE.md` |
+   | Cline | `~/.agents/AGENTS.md` |
+   | Pi | `~/.pi/agent/AGENTS.md` |
+
+   If the marker exists, replace that block with the current text. Otherwise
+   append it once. Create a missing file, but never overwrite, reorder, or
+   delete unrelated content.
 
    ```markdown
    <!-- dox:global-rule -->
@@ -85,36 +95,40 @@ globally.
    <!-- /dox:global-rule -->
    ```
 
-Cursor has no file-based global rules (User Rules are app settings). If
-the user works in Cursor, print the pointer block above and ask them to
-paste it into Cursor Settings → Rules once; committed project `AGENTS.md`
-anchors (the DOX shim) are read by Cursor natively, root and nested.
-
 Never write to `~/.codex/rules` or any `.codex/rules` — that path holds
 command-execution policy, not guidance.
+
+If a legacy same-tool rule exists in `~/.gemini/config/rules/` or a Cline
+Rules directory, report it and ask before removing it. Do not leave both
+routes active.
 
 ## 5. Validate and report
 
 1. Verify every installed skill copy is byte-identical across the selected
-   harness destinations and to the canonical source, and that the rule
-   copies match.
+   harness destinations and to the canonical source. Verify the shared rule
+   body matches its source and every selected host has exactly one pointer.
 2. Remove the temporary staging directory.
 3. Report every file created, changed, or intentionally left alone, plus any
    collisions from step 2. Note the install is per-user and per-machine.
 4. Tell the user the next step: in a project they want governed, ask their
    agent to use the `dox-init` skill (Codex: type `$` and select it;
-   Claude Code, Antigravity, Cline: `/dox-init`). `dox-init` /
-   `dox-upgrade` create or merge the committed root `AGENTS.md` /
+   Antigravity CLI and Claude Code: `/dox-init`; Cline also has the project
+   shim `/dox-init.md`; Pi: `/skill:dox-init` when enabled). The `dox-init`
+   and `dox-upgrade` skills create or merge the committed root `AGENTS.md` /
    `CLAUDE.md` anchors (the DOX shim) and the `DOX.md` tree — those are
    shared project files that belong in version control, unlike this
    install's global adapters.
 
 ## Project-level adapter install (opt-in only)
 
-Only on explicit user request: copy the six skills to the project's
-`.agents/skills/` and `.claude/skills/`, and the rule to `.agents/rules/`,
-`.claude/rules/`, and `.clinerules/` (byte-identical). Whether the team
-commits or gitignores those adapters is the project's own policy — never
-touch the project's `.gitignore` yourself; if existing ignore rules hide
-the adapters from a harness, report the exact pattern instead of changing
-it.
+Only on explicit user request: copy the six authoritative skills to the
+project's `.agents/skills/`, mirror them byte-identically to
+`.claude/skills/`, and copy the six thin shims from
+`.clinerules/workflows/`. Merge the self-gating rule body from
+`rules/shared/dox.md` once into `AGENTS.md`, preserving the DOX pointer and
+all unrelated instructions; ensure `CLAUDE.md` imports `AGENTS.md` exactly
+once. Do not duplicate the rule through host rule directories.
+
+Commit the root files, both skill trees, and Cline shims together. Never touch
+the project's `.gitignore`; report an exact ignore pattern if it hides an
+adapter.

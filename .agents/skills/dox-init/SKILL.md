@@ -1,6 +1,6 @@
 ---
 name: dox-init
-description: Initialize the DOX documentation tree (hierarchy of DOX.md files) for this project. Use when the user asks to set up DOX, initialize DOX, bootstrap DOX.md docs, or index the project with a doc tree. Handles both brand-new projects (little or no code yet) and existing codebases with code but no docs. Do not use for checking or repairing an existing DOX tree — that is dox-audit / dox-fix.
+description: Initialize the DOX documentation tree (hierarchy of DOX.md files) for this project. Use when the user asks to set up DOX, initialize DOX, bootstrap DOX.md docs, or index the project with a doc tree. Handles both brand-new projects (little or no code yet) and existing codebases with code but no docs. Do not use for checking or repairing an existing DOX tree; use the dox-audit or dox-fix skill.
 ---
 
 # DOX Init
@@ -11,18 +11,18 @@ Build this project's DOX tree: one DOX.md per real boundary, from the root down.
 
 1. Open `DOX.md` in the project root.
 2. If it exists and contains the heading `# DOX framework`, the framework is present — go to Step 1.
-3. If `DOX.md` is missing but `AGENTS.md` exists and contains `# DOX framework`, the project uses the **legacy filename** (pre-v3). Suggest the `dox-upgrade` skill to migrate the filenames first, then re-run `dox-init` if needed. STOP.
+3. If `DOX.md` is missing but `AGENTS.md` exists and contains `# DOX framework`, the project uses the **legacy filename** (pre-v3). Suggest the `dox-upgrade` skill to migrate the filenames first, then use the `dox-init` skill again if needed. STOP.
 4. If neither file has DOX rules, fetch the framework from
    `https://raw.githubusercontent.com/jpbaking/dox/main/DOX.md` and save it as `DOX.md` in the project root.
    - If a root `DOX.md` already existed with other content, keep that content: place the framework text at the top, and move the old content below it under a heading `## Project rules (imported)`. Tell the user to review that section.
-   - If the fetch fails, STOP. Ask the user to copy `DOX.md` from https://github.com/jpbaking/dox into the project root, then run `dox-init` again.
+   - If the fetch fails, STOP. Ask the user to copy `DOX.md` from https://github.com/jpbaking/dox into the project root, then use the `dox-init` skill again.
 5. Read the whole root DOX.md now. Every step below follows its rules exactly.
 
 ## Step 1 — Decide the mode
 
 Look at the project and pick exactly one:
 
-- **Already initialized** — child DOX.md files or recognizable legacy child AGENTS.md files already exist, or the root's Child DOX Index is filled. Do NOT re-initialize or create competing docs. Say so and suggest `dox-audit` (check), `dox-fix` (repair a v3 root), or `dox-upgrade` (migrate legacy filenames). STOP.
+- **Already initialized** — child DOX.md files or recognizable legacy child AGENTS.md files already exist, or the root's Child DOX Index is filled. Do NOT re-initialize or create competing docs. Say so and suggest the `dox-audit` skill (check), `dox-fix` skill (repair a v3 root), or `dox-upgrade` skill (migrate legacy filenames). STOP.
 - **New project** — little or no code yet: empty repo, scaffolding only, no meaningful source files.
 - **Existing project** — real code exists, but no DOX child docs yet.
 

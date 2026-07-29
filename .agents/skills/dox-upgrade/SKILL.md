@@ -1,6 +1,6 @@
 ---
 name: dox-upgrade
-description: Upgrade this project's DOX framework rules (the root DOX.md) to the latest released version while preserving all project content — User Preferences, Feature Map, Child DOX Index, and imported project rules. Also migrates legacy AGENTS.md filenames to DOX.md (v3+). Use when the user asks to upgrade or update DOX, refresh the framework, or when dox-audit reports the framework version is outdated or legacy filenames. Not for repairing the doc tree — that is dox-fix.
+description: Upgrade this project's DOX framework rules (the root DOX.md) to the latest released version while preserving all project content — User Preferences, Feature Map, Child DOX Index, and imported project rules. Also migrates legacy AGENTS.md filenames to DOX.md (v3+). Use when the user asks to upgrade or update DOX, refresh the framework, or when the dox-audit skill reports the framework version is outdated or legacy filenames. Not for repairing the doc tree; use the dox-fix skill.
 ---
 
 # DOX Upgrade
@@ -83,4 +83,4 @@ New rules usually create new mechanical debt (new required sections, new placeho
 
 ## Step 8 — Report
 
-State: old version → new version, which live sections were carried over, which project-only sections were kept, any text you kept because you could not classify it. If a filename migration ran, list every file renamed. Note whether the `AGENTS.md` and `CLAUDE.md` bridges were created, updated, or already valid. List nested roots left on older versions or still using `AGENTS.md`, and summarize what the `dox-fix` pass changed.
+State: old version → new version, which live sections were carried over, which project-only sections were kept, any text you kept because you could not classify it. If a filename migration ran, list every file renamed. Note whether the `AGENTS.md` and `CLAUDE.md` bridges were created, updated, or already valid. List nested roots left on older versions or still using `AGENTS.md`, and summarize what the `dox-fix` skill changed.

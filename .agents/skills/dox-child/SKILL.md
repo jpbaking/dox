@@ -1,6 +1,6 @@
 ---
 name: dox-child
-description: Assess one candidate folder against the DOX boundary test and, if it really is a boundary, initialize its child DOX.md (and wire it into the parent). If it is not a boundary, explain why and create nothing. Use when the user gives a folder path and asks to add a child doc, "dox" a directory, or asks whether a folder deserves its own DOX.md. For whole-project initialization use dox-init.
+description: Assess one candidate folder against the DOX boundary test and, if it really is a boundary, initialize its child DOX.md (and wire it into the parent). If it is not a boundary, explain why and create nothing. Use when the user gives a folder path and asks to add a child doc, "dox" a directory, or asks whether a folder deserves its own DOX.md. For whole-project initialization use the dox-init skill.
 ---
 
 # DOX Child
@@ -9,7 +9,7 @@ Judge one folder with the boundary test, then either initialize it as a DOX chil
 
 ## Step 0 — Preconditions
 
-1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the legacy filename is found, also suggest `dox-upgrade` to migrate filenames.
+1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the legacy filename is found, also suggest the `dox-upgrade` skill to migrate filenames.
 2. The user must name a candidate directory (relative path). If they did not, ask for it.
 3. If the path does not exist or is not a directory, STOP and say so.
 
@@ -19,8 +19,8 @@ Look inside the candidate folder:
 
 - It already has a DOX.md **with the full DOX rules** (`# DOX framework` heading): it is a **nested root** — leave it completely unchanged. Check only that the parent chain indexes it; add the missing Child DOX Index line in the parent if needed. Report and STOP.
 - It already has a child DOX.md: it is already covered. Suggest `dox-audit` scoped to it if the user suspects it is stale. Report and STOP.
-- It has no DOX.md but has an `AGENTS.md` with the full DOX rules: it is a **legacy nested root** — leave it and everything beneath it completely unchanged. Check only the parent index, suggest running `dox-upgrade` inside that project, report, and STOP.
-- It has no DOX.md but has a recognizable legacy child `AGENTS.md` (Child Doc Shape / `## Child DOX Index`): it is already covered but stale. Do not create a competing DOX.md; suggest `dox-upgrade` or `dox-fix`, report, and STOP.
+- It has no DOX.md but has an `AGENTS.md` with the full DOX rules: it is a **legacy nested root**—leave it and everything beneath it completely unchanged. Check only the parent index, suggest running the `dox-upgrade` skill inside that project, report, and STOP.
+- It has no DOX.md but has a recognizable legacy child `AGENTS.md` (Child Doc Shape / `## Child DOX Index`): it is already covered but stale. Do not create a competing DOX.md; suggest the `dox-upgrade` or `dox-fix` skill, report, and STOP.
 - An unrelated `AGENTS.md` or root shim is not a DOX child doc. Preserve it and continue the boundary test.
 - No current or legacy DOX doc: continue.
 

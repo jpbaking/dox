@@ -1,6 +1,6 @@
 ---
 name: dox-remap
-description: Deep-scan the codebase and rebuild or refine every Feature Map in the DOX tree. Reads source code, discovers unmapped features, retires defunct entries, fixes orphaned or mislocated entries, and improves descriptions, Start files, and file lists. Use when the user asks to remap features, refresh the maps, or do a deep scan; after a large refactor; when maps are shallow or outdated; when a stronger model is available; or for a periodic deep refresh. Not for structural repairs — that is dox-fix.
+description: Deep-scan the codebase and rebuild or refine every Feature Map in the DOX tree. Reads source code, discovers unmapped features, retires defunct entries, fixes orphaned or mislocated entries, and improves descriptions, Start files, and file lists. Use when the user asks to remap features, refresh the maps, or do a deep scan; after a large refactor; when maps are shallow or outdated; when a stronger model is available; or for a periodic deep refresh. Not for structural repairs; use the dox-fix skill.
 ---
 
 # DOX Remap
@@ -9,7 +9,7 @@ Re-read the source code and rebuild every Feature Map in the DOX tree. This is t
 
 ## Step 0 — Preconditions
 
-1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the legacy filename is found, suggest `dox-upgrade` first.
+1. Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the legacy filename is found, suggest the `dox-upgrade` skill first.
 2. Read the root doc fully, especially the **Feature Map** section (format, locality rules, "Keep it current"). Inventory descendant roots under both the current `DOX.md` filename and legacy `AGENTS.md`; they are out of scope.
 
 If the user named a specific folder, scope every step below to that subtree only.

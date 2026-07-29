@@ -1,6 +1,6 @@
 ---
 name: dox-fix
-description: Audit AND auto-repair this project's DOX tree (the hierarchy of DOX.md files). Edits docs only — never source code. Use when the user asks to fix, repair, heal, or clean up the DOX docs, DOX.md tree, stale indexes, or broken Feature Maps. For a report without any edits, use dox-audit instead. For deep Feature Map refinement, use dox-remap.
+description: Audit AND auto-repair this project's DOX tree (the hierarchy of DOX.md files). Edits docs only — never source code. Use when the user asks to fix, repair, heal, or clean up the DOX docs, DOX.md tree, stale indexes, or broken Feature Maps. For a report without any edits, use the dox-audit skill instead. For deep Feature Map refinement, use the dox-remap skill.
 ---
 
 # DOX Fix (auto-repair)
@@ -9,7 +9,7 @@ Run the DOX health audit, fix the safe mechanical problems, and leave judgment c
 
 ## Step 0 — Precondition
 
-Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the framework root is the legacy `AGENTS.md`, STOP and suggest `dox-upgrade`; a repair must not perform a partial framework migration. Otherwise read `DOX.md` fully before changing anything.
+Open the project root doc: check `DOX.md` first, then `AGENTS.md` (legacy name, pre-v3). If neither exists or neither contains `# DOX framework`, STOP and suggest the `dox-init` skill. If the framework root is the legacy `AGENTS.md`, STOP and suggest the `dox-upgrade` skill; a repair must not perform a partial framework migration. Otherwise read `DOX.md` fully before changing anything.
 
 If the user named a specific folder, scope every step below to that folder only.
 
@@ -45,4 +45,4 @@ Follow the **Closeout** procedure in the root DOX.md to finish.
 
 ## Step 6 — Report
 
-List every file you created or changed (one line each). Then, separately, list the judgment calls and nested-root fixes you left for the user to decide. If Feature Map improvements were flagged but not applied, note them and suggest `dox-remap`.
+List every file you created or changed (one line each). Then, separately, list the judgment calls and nested-root fixes you left for the user to decide. If Feature Map improvements were flagged but not applied, note them and suggest the `dox-remap` skill.
