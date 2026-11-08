@@ -12,10 +12,9 @@ Build this project's DOX tree: one DOX.md per real boundary, from the root down.
 1. Open `DOX.md` in the project root.
 2. If it exists and contains the heading `# DOX framework`, the framework is present — go to Step 1.
 3. If `DOX.md` is missing but `AGENTS.md` exists and contains `# DOX framework`, the project uses the **legacy filename** (pre-v3). Suggest the `dox-upgrade` skill to migrate the filenames first, then use the `dox-init` skill again if needed. STOP.
-4. If neither file has DOX rules, fetch the framework from
-   `https://raw.githubusercontent.com/jpbaking/dox/main/DOX.md` and save it as `DOX.md` in the project root.
+4. If neither file has DOX rules, copy the framework bundled with this skill, `assets/DOX.md` (in this skill folder), and save it as `DOX.md` in the project root. Do not download it.
    - If a root `DOX.md` already existed with other content, keep that content: place the framework text at the top, and move the old content below it under a heading `## Project rules (imported)`. Tell the user to review that section.
-   - If the fetch fails, STOP. Ask the user to copy `DOX.md` from https://github.com/jpbaking/dox into the project root, then use the `dox-init` skill again.
+   - If `assets/DOX.md` is missing or lacks `# DOX framework`, the installed skill is incomplete. STOP. Ask the user to reinstall DOX or to copy `DOX.md` from their DOX repository clone into the project root, then use the `dox-init` skill again.
 5. Read the whole root DOX.md now. Every step below follows its rules exactly.
 
 ## Step 1 — Decide the mode
@@ -32,7 +31,7 @@ Look at the project and pick exactly one:
 2. Fill the root DOX.md live sections (User Preferences, Feature Map, Child DOX Index) with the project-wide rules you can state from that description.
 3. Create a child DOX.md for each boundary already known to be needed (each submodule, subproject, or area with its own build/run/test), using **Child Doc Shape** from the root DOX.md.
 4. Fill every Child DOX Index, and fill the Feature Map for each area you can already describe.
-5. **Shim agent harnesses.** Follow the "Shim agent harnesses" step of the Initialization procedure in the root DOX.md: ensure the `AGENTS.md` and `CLAUDE.md` bridges exist, exactly as written there.
+5. **Shim agent harnesses.** Follow the "Shim agent harnesses" step of the Initialization procedure in the root DOX.md: ensure the `AGENTS.md`, `CLAUDE.md`, and `.gemini/settings.json` bridges exist, exactly as written there.
 6. Go to Step 3.
 
 ## Step 2B — Existing project (has code, no docs)
@@ -43,7 +42,7 @@ Follow the **Initialization** procedure in the root DOX.md exactly — all steps
 2. Any descendant folder that carries the full root rules in `DOX.md` or legacy `AGENTS.md` is a **nested root**: leave its whole doc tree and current filename unchanged and just index it as a child. Never rewrite it or recurse into it.
 3. Fill every Child DOX Index (one line per direct child; `(none)` at a leaf).
 4. Fill every Feature Map — the root DOX.md's included — giving each feature its Start file and its other files.
-5. **Shim agent harnesses.** Do not skip the "Shim agent harnesses" step of the Initialization procedure: the `AGENTS.md` and `CLAUDE.md` bridges must exist, exactly as written there.
+5. **Shim agent harnesses.** Do not skip the "Shim agent harnesses" step of the Initialization procedure: the `AGENTS.md`, `CLAUDE.md`, and `.gemini/settings.json` bridges must exist, exactly as written there.
 6. Stop only when the "Done when" check in the Initialization procedure is satisfied.
 
 ## Step 3 — Report

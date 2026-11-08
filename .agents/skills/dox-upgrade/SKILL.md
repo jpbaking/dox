@@ -15,24 +15,33 @@ Replace the framework rules in the root DOX.md with the latest version, preserve
    - whether the root framework doc is `DOX.md` or legacy `AGENTS.md`;
    - whether the root `AGENTS.md` is already a shim pointing to `DOX.md`;
    - whether root `CLAUDE.md` imports `AGENTS.md` or directly points to `DOX.md`;
+   - whether root `.gemini/settings.json` lists `AGENTS.md` in `context.fileName`;
    - recognizable legacy child DOX docs named `AGENTS.md`;
    - descendant `DOX.md` or legacy `AGENTS.md` files with full root rules (nested roots — off-limits, and stop inventory traversal there);
    - unrelated or ambiguous `AGENTS.md` harness instruction files (preserve them; they are not migration candidates).
 
 ## Step 1 — Fetch the latest framework
 
-Download `https://raw.githubusercontent.com/jpbaking/dox/main/DOX.md` to a temporary file (do NOT overwrite the root doc yet). If the download fails, STOP and tell the user — never upgrade from memory.
+Obtain the latest framework with git, never with a raw-file or archive download (those fail behind enterprise GitHub authentication):
+
+1. Use the DOX remote the user names (a fork, mirror, enterprise host, or SSH remote); otherwise use `https://github.com/jpbaking/dox`.
+2. Create a new, empty temporary directory outside the project and clone only the repository root into it, without prompting for a password:
+   `GIT_TERMINAL_PROMPT=0 git clone --depth 1 --filter=blob:none --sparse <remote> <tmp>/dox`
+3. The framework is `<tmp>/dox/DOX.md`. Do NOT overwrite the project's root doc yet.
+4. If the clone fails, STOP. Tell the user the error, and ask them to authenticate the way they normally do for that host (for example `gh auth login` then `gh auth setup-git`, or loading an SSH key) or to name the correct remote, then use the `dox-upgrade` skill again. Never ask for or embed a token, and never upgrade from memory.
+
+Delete `<tmp>` when this skill finishes, including when it stops early.
 
 ## Step 2 — Compare versions
 
 The framework version is the line starting `DOX v` directly under the `# DOX framework` heading. Decide independently whether a framework merge, filename migration, or harness-bridge repair is needed.
 
-- Same version with pending filename or harness-bridge work: delete the temporary framework file, skip the framework text merge, and continue to Step 4.
-- Same version with no pending filename or harness-bridge work: delete the temporary framework file, report "already on the latest version," and STOP.
+- Same version with pending filename or harness-bridge work: delete `<tmp>`, skip the framework text merge, and continue to Step 4.
+- Same version with no pending filename or harness-bridge work: delete `<tmp>`, report "already on the latest version," and STOP.
 - The project file has no `DOX v` line: it predates versioning — continue.
 - Different versions: continue.
 
-Pending work exists when the root or a recognizable child doc still uses the legacy filename, when the root `AGENTS.md` shim is missing/incomplete, or when `CLAUDE.md` does not reach the DOX instructions. Nested roots and unrelated/ambiguous `AGENTS.md` files do not count as pending work in the parent project.
+Pending work exists when the root or a recognizable child doc still uses the legacy filename, when the root `AGENTS.md` shim is missing/incomplete, when `CLAUDE.md` does not reach the DOX instructions, or when `.gemini/settings.json` is missing or does not list `AGENTS.md` in `context.fileName`. Nested roots and unrelated/ambiguous `AGENTS.md` files do not count as pending work in the parent project.
 
 ## Step 3 — Merge (never lose project content)
 
@@ -42,7 +51,7 @@ Run this step only when the framework text differs or the current root has no ve
 2. Start from the NEW framework text in full.
 3. In the new text, replace the placeholder body of each live section (`## User Preferences`, `## Feature Map`, `## Child DOX Index`) with the project's existing body — but keep the new placeholder wherever the project's section was itself still a placeholder or missing.
 4. Append the project-only sections from step 1 at the end, unchanged and in their original order.
-5. Write the result as `DOX.md` in the project root (even if the old file was named `AGENTS.md` — the new name takes effect here). Delete the temp file.
+5. Write the result as `DOX.md` in the project root (even if the old file was named `AGENTS.md` — the new name takes effect here). Delete `<tmp>`.
 6. If the old file was the legacy root `AGENTS.md`, delete it now only after confirming `DOX.md` contains the merged content, then remove that root file from the Step 4 migration inventory. Do not delete a shim or unrelated harness instruction file.
 7. If any piece of the old file does not clearly belong to either the framework or a project section, KEEP it and list it for the user — never silently drop text.
 
@@ -72,6 +81,12 @@ Then ensure Claude Code reaches the same instructions:
 - If `CLAUDE.md` does not exist, create it with `@AGENTS.md`.
 - If it already imports `AGENTS.md` or directly points to `DOX.md`, preserve it unchanged.
 - Otherwise prepend `@AGENTS.md` and preserve all existing Claude-specific instructions.
+
+Then ensure Gemini CLI reads `AGENTS.md` (it does only when `.gemini/settings.json` lists it in `context.fileName`):
+- If `.gemini/settings.json` does not exist, create it with `{"context": {"fileName": ["AGENTS.md", "GEMINI.md"]}}`.
+- If it exists, merge and never replace it: if `context.fileName` is absent, set it to `["AGENTS.md", "GEMINI.md"]`; if it is a single string, turn it into a list that keeps that value and adds `"AGENTS.md"`; if it is a list without `"AGENTS.md"`, add it. Keep every other setting unchanged.
+- If the file is not plain valid JSON (for example, it contains comments), do not rewrite it; report the exact change for the user to make.
+- Never create a project `GEMINI.md` for DOX.
 
 ## Step 6 — Nested roots stay untouched
 

@@ -28,59 +28,66 @@ This fork is tuned for **smaller / weaker models**. Where the original states pr
 
 Add DOX once, then use the prompt that fits your situation.
 
-**Add DOX.** Copy [DOX.md](./DOX.md?plain=1), the lightweight
-[AGENTS.md shim](./AGENTS.md?plain=1), and the
-[CLAUDE.md import](./CLAUDE.md?plain=1) into your project root. There are no
-dependencies or runtime: Antigravity CLI, Codex, Cline, and Pi discover the
-`AGENTS.md` bridge, while Claude Code imports it through `CLAUDE.md`.
+**Add DOX.** Copy [DOX.md](./DOX.md?plain=1) into your project root, then add
+the bridges beside it: an `AGENTS.md` containing
+`This project uses the DOX framework. Do not add DOX rules here. Read DOX.md in this directory and follow its instructions.`
+a `CLAUDE.md` containing `@AGENTS.md`, and a `.gemini/settings.json` containing
+`{"context": {"fileName": ["AGENTS.md", "GEMINI.md"]}}`. (This repository's own
+[AGENTS.md](./AGENTS.md?plain=1) adds contributor notes below that line; copy
+only the line.) There are no dependencies or runtime: Antigravity CLI, Codex,
+Cline, and OpenCode discover the `AGENTS.md` bridge, Claude Code imports it
+through `CLAUDE.md`, and Gemini CLI reads it when `.gemini/settings.json` lists
+`AGENTS.md` in `context.fileName`. The `dox-init` skill writes the bridges for
+you.
 
 The prompts below are written out step by step on purpose. Smaller models follow numbered, explicit instructions far more reliably than short ones, so prefer these full versions.
 
-### Install for Antigravity CLI, Codex, Claude Code, Cline, and Pi
+### Install for Antigravity CLI, Codex, Claude Code, Gemini CLI, Cline, and OpenCode
 
 The core workflows are portable [Agent Skills](https://agentskills.io/) under [.agents/skills/](./.agents/skills/). Installation is agent-guided only — there are no install scripts. Paste this into any of the supported agents:
 
 ```
-Fetch https://raw.githubusercontent.com/jpbaking/dox/main/AGENT-INSTALL.md and follow its instructions exactly to install DOX. Merge with — never blindly overwrite — any existing global instruction files, and report every file you created or changed.
+Install DOX. Using git with my existing credentials (do not download raw
+files or archives), clone https://github.com/jpbaking/dox with --depth 1 into
+a new temporary directory outside any project. Then read AGENT-INSTALL.md from
+that clone and follow it exactly. Merge with—never blindly overwrite—any
+existing global instruction files, ask me which harnesses to install for, and
+report every file you created or changed.
 ```
 
-The procedure in [AGENT-INSTALL.md](./AGENT-INSTALL.md) is the authoritative
-install contract: the agent acquires the DOX sources itself (`git clone`, repo
-zip, or `gh`) in a temporary directory, audits for skill-name collisions, and
-copies the six skills into your **user-global** discovery paths:
-`~/.agents/skills/` (Codex and Pi), `~/.claude/skills/` (Claude Code),
-`~/.gemini/antigravity-cli/skills/` (Antigravity CLI), and
-`~/.cline/skills/` (Cline). The shared rule body is stored once under
-`~/.agents/rules/` and referenced from each selected host's global instruction
+Without a tag, the prompt installs the default branch as it is at clone time;
+add `at tag vX.Y.Z` (cloned with `--branch vX.Y.Z`) to pin a release. On a
+fork, mirror, or enterprise host, substitute the remote you clone from.
+
+**What the prompt does:** your agent clones this repository with your own git
+credentials and then executes the instructions in
+[AGENT-INSTALL.md](./AGENT-INSTALL.md), the authoritative install contract.
+It audits for skill-name collisions and writes only to these user-global
+paths: `~/.agents/skills/` (Codex, Gemini CLI, Cline, OpenCode),
+`~/.claude/skills/` (Claude Code), `~/.gemini/antigravity-cli/skills/`
+(Antigravity CLI), the rule body at `~/.agents/rules/dox.md`, and a
+marker-guarded pointer block in each selected harness's global instruction
 file. Nothing is written into any project, and no project `.gitignore` is
-touched. Re-run anytime to update; the install is per-user and per-machine.
+touched. Re-run anytime to update; the contract also covers uninstall.
 
 What lives in a project is **project truth, committed**: the `DOX.md` tree plus the root `AGENTS.md` shim and `CLAUDE.md` import, created or merged by `dox-init` / `dox-upgrade`. Those anchors mean a teammate's fresh clone steers any agent to `DOX.md` with zero tooling installed — following a DOX tree requires no skills, only reading. Teams can keep their own project-specific agent rules in the same anchor files; the shim is added alongside, never replacing them.
-
-Separate global workflow files are unnecessary: every supported harness can
-use the Agent Skills directly. An explicit project install includes thin Cline
-workflow shims.
 
 | Agent | Persistent project guidance | Installed skill location | Explicit invocation |
 | --- | --- | --- | --- |
 | [Antigravity CLI](https://antigravity.google/docs/cli-overview) | project `AGENTS.md` + pointer in `~/.gemini/GEMINI.md` | `~/.gemini/antigravity-cli/skills/` | `/dox-init` |
 | [Codex](https://learn.chatgpt.com/docs/agent-configuration/agents-md) | project `AGENTS.md` + pointer in `~/.codex/AGENTS.md` | `~/.agents/skills/` | Type `$` and select `dox-init`, or browse with `/skills` |
-| [Claude Code](https://code.claude.com/docs/en/memory) | project `CLAUDE.md` anchor + pointer block in `~/.claude/CLAUDE.md` | `~/.claude/skills/` | `/dox-init` |
-| [Cline](https://docs.cline.bot/customization/cline-rules) | project `AGENTS.md` + pointer in `~/.agents/AGENTS.md` | `~/.cline/skills/` | `/dox-init` |
-| [Pi](https://pi.dev/) | project `AGENTS.md` + pointer in `~/.pi/agent/AGENTS.md` | `~/.agents/skills/` | `/skill:dox-init` when enabled |
+| [Claude Code](https://code.claude.com/docs/en/memory) | project `CLAUDE.md` anchor + pointer in `~/.claude/CLAUDE.md` | `~/.claude/skills/` | `/dox-init` |
+| [Gemini CLI](https://geminicli.com/docs/cli/gemini-md/) | project `AGENTS.md` via `.gemini/settings.json` + pointer in `~/.gemini/GEMINI.md` | `~/.agents/skills/` | Name the skill in the prompt |
+| [Cline](https://docs.cline.bot/customization/cline-rules) | project `AGENTS.md` + pointer in `~/.agents/AGENTS.md` | `~/.agents/skills/` | `/dox-init` |
+| [OpenCode](https://opencode.ai/docs/instructions/) | project `AGENTS.md` + pointer in `~/.config/opencode/AGENTS.md` | `~/.agents/skills/` | `@dox-init` |
 
 The shared `SKILL.md` files use only the portable `name` and `description` metadata. Host-only fields and host-only workflow formats stay out of the common source.
 
 There is no universal command prefix or autocomplete UI. The portable instruction is plain language: **"Use the `dox-init` skill."** Each agent can also select the skill automatically from its description when the request matches.
 
-Global skill copies remain byte-identical. Codex and Pi share
-`~/.agents/skills/`; Cline reads `~/.cline/skills/`; Antigravity CLI reads
-`~/.gemini/antigravity-cli/skills/`; Claude Code reads
-`~/.claude/skills/`.
-
 The skills:
 
-- **`dox-init`** — initialize the tree; the agent detects whether this is a new project (little or no code) or an existing codebase, and even fetches the framework DOX.md for you if it is missing.
+- **`dox-init`** — initialize the tree; the agent detects whether this is a new project (little or no code) or an existing codebase, and copies the framework DOX.md bundled with the skill if it is missing.
 - **`dox-child`** — give it a folder path; it runs the boundary test and either initializes that folder as a child doc (wired into the parent) or explains why it does not deserve one.
 - **`dox-audit`** — read-only health check (lint); reports findings by severity, never edits. Now also catches orphaned, mislocated, and unmapped features.
 - **`dox-fix`** — audit + auto-repair; fixes the mechanical problems (dead references, orphaned entries, locality violations, legacy filenames), leaves judgment calls and nested roots to you.
@@ -95,21 +102,22 @@ The [shared rule](./rules/shared/dox.md) makes each agent find an edited file's 
 
 DOX v3 renamed the doc file from `AGENTS.md` to `DOX.md` to avoid conflicts with other AI harnesses that now use `AGENTS.md` as a convention. If your project still has `AGENTS.md` files:
 
-**Using the installed skills?** Run `dox-upgrade` — it renames confirmed legacy DOX docs to `DOX.md`, updates their internal references, upgrades the framework rules, and creates the lightweight `AGENTS.md` / `CLAUDE.md` bridges. It preserves unrelated harness instruction files and never edits a nested root from the parent project.
+**Using the installed skills?** Run `dox-upgrade` — it renames confirmed legacy DOX docs to `DOX.md`, updates their internal references, upgrades the framework rules, and creates the lightweight `AGENTS.md`, `CLAUDE.md`, and `.gemini/settings.json` bridges. It preserves unrelated harness instruction files and never edits a nested root from the parent project.
 
 **Without the skills?** Use this prompt:
 
 ```
 Upgrade this project's DOX framework. The root doc may still be named AGENTS.md (legacy, pre-v3).
 1. Read the root doc (DOX.md or AGENTS.md, whichever exists) — look for the "# DOX framework" heading.
-2. Fetch the latest framework from https://raw.githubusercontent.com/jpbaking/dox/main/DOX.md.
+2. Get the latest framework with git (not a raw download): clone https://github.com/jpbaking/dox with --depth 1 into a temporary directory outside this project and read DOX.md from it.
 3. Merge: keep all project content (User Preferences, Feature Map, Child DOX Index, imported rules), replace only the framework text with the new version, and write the result as DOX.md. Delete the old AGENTS.md if it was renamed.
 4. Walk the entire DOX tree, stopping at nested roots. Classify each AGENTS.md before editing: rename only confirmed legacy DOX docs (the framework root or a child using Child Doc Shape). Never rename a root shim, an unrelated harness instruction file, or an ambiguous file. Never overwrite an existing DOX.md; report conflicts instead.
 5. Inside docs actually migrated, update legacy doc-filename references to DOX.md and fix "an DOX.md" → "a DOX.md". Do not blanket-replace AGENTS.md in current v3 docs because references to the shim are intentional.
 6. Create or update an AGENTS.md shim in the project root with: "This project uses the DOX framework. Do not add DOX rules here. Read DOX.md in this directory and follow its instructions." Do not duplicate the direction or discard unrelated instructions.
 7. Ensure Claude Code is bridged too: create CLAUDE.md containing `@AGENTS.md` if missing; if CLAUDE.md already imports AGENTS.md or points to DOX.md, leave it; otherwise prepend `@AGENTS.md` and preserve its existing instructions.
-8. Do NOT touch files inside a nested root (a descendant folder with its own root DOX.md or legacy AGENTS.md containing full DOX rules) — note those for me instead.
-9. Report every file renamed or changed, every ambiguous/conflicting file preserved, and confirm both bridges exist.
+8. Ensure Gemini CLI is bridged: if .gemini/settings.json is missing, create it as `{"context": {"fileName": ["AGENTS.md", "GEMINI.md"]}}`; if it exists, add "AGENTS.md" to `context.fileName` (keeping any existing entries and every other setting); if it is not plain JSON, tell me the change instead of rewriting it.
+9. Do NOT touch files inside a nested root (a descendant folder with its own root DOX.md or legacy AGENTS.md containing full DOX rules) — note those for me instead.
+10. Report every file renamed or changed, every ambiguous/conflicting file preserved, and confirm all three bridges exist.
 ```
 
 ### New project (little or no code yet)
@@ -123,7 +131,7 @@ Set up DOX for a new project. Do this step by step:
 3. Create the root DOX.md with the project-wide rules.
 4. Create a child DOX.md for each boundary we already know we need (each submodule, subproject, or area with its own build/run/test). Write each one using Child Doc Shape.
 5. Fill every Child DOX Index, and fill the Feature Map for each area you can already describe.
-6. Create an AGENTS.md shim in the project root pointing to DOX.md and a CLAUDE.md that imports it with `@AGENTS.md`.
+6. Create an AGENTS.md shim in the project root pointing to DOX.md, a CLAUDE.md that imports it with `@AGENTS.md`, and a .gemini/settings.json that lists AGENTS.md in `context.fileName` (merge into an existing file; never replace it).
 7. Show me the tree you created.
 ```
 
@@ -150,7 +158,7 @@ Initialize DOX for this existing project by following the Initialization procedu
 4. Write each DOX.md using Child Doc Shape.
 5. Fill every Child DOX Index (one line per direct child; "(none)" at a leaf).
 6. Fill every Feature Map, the root DOX.md's included: for each feature give its Start file and its other files.
-7. Create an AGENTS.md shim in the project root pointing to DOX.md and a CLAUDE.md that imports it with `@AGENTS.md`.
+7. Create an AGENTS.md shim in the project root pointing to DOX.md, a CLAUDE.md that imports it with `@AGENTS.md`, and a .gemini/settings.json that lists AGENTS.md in `context.fileName` (merge into an existing file; never replace it).
 8. Stop only when the "Done when" check in the Initialization procedure is satisfied, then show me the full tree.
 ```
 
@@ -206,7 +214,7 @@ Audit the health of this project's DOX docs. This is READ-ONLY — do not change
 5. Feature Map: for every listed feature, confirm its Start file and other files still exist; flag entries pointing to moved or deleted files, obvious features that have no entry, and any leftover "Not yet mapped" placeholder.
 6. Shape: flag docs that skip required sections, use them out of order, or that should be sub-roots but are not. Exception: a nested root correctly keeps the full DOX rules and root shape — never flag it as a shape violation.
 7. Contracts: flag any child or sub-root rule that conflicts with or weakens a parent, and any rule describing behavior or files that no longer exist. Mark conflicts involving a nested root as "decide with the owner" — the fix may belong in the parent, not the nested project.
-8. Agent bridges: confirm root AGENTS.md points to DOX.md and root CLAUDE.md imports AGENTS.md or directly points to DOX.md.
+8. Agent bridges: confirm root AGENTS.md points to DOX.md, root CLAUDE.md imports AGENTS.md or directly points to DOX.md, and root .gemini/settings.json lists AGENTS.md in `context.fileName`.
 9. Report findings grouped by severity (broken/missing, stale, minor), each with the file path and a one-line suggested fix. Do not fix anything — ask me first.
 ```
 
@@ -214,7 +222,7 @@ Audit the health of this project's DOX docs. This is READ-ONLY — do not change
 <summary><strong>Short form</strong> — for capable / frontier models</summary>
 
 ```
-Audit this project's DOX health (READ-ONLY, do not edit): check boundary coverage at every depth, Child DOX Index completeness, Feature Map files, Child Doc Shape, parent/child conflicts, and the AGENTS.md / CLAUDE.md bridges. A descendant project's full root rules in DOX.md or legacy AGENTS.md mark a valid nested root; stop traversal there. Do not treat the root AGENTS.md shim as a legacy doc. Report issues grouped by severity with paths and suggested fixes.
+Audit this project's DOX health (READ-ONLY, do not edit): check boundary coverage at every depth, Child DOX Index completeness, Feature Map files, Child Doc Shape, parent/child conflicts, and the AGENTS.md / CLAUDE.md / .gemini/settings.json bridges. A descendant project's full root rules in DOX.md or legacy AGENTS.md mark a valid nested root; stop traversal there. Do not treat the root AGENTS.md shim as a legacy doc. Report issues grouped by severity with paths and suggested fixes.
 ```
 
 </details>
@@ -235,7 +243,7 @@ Audit AND repair this project's DOX docs. Edit docs only — never change source
    - Repair every Child DOX Index: add missing children, drop entries for docs that no longer exist, mark leaves "(none)", and replace any "Not yet indexed" placeholder.
    - Fix Feature Map entries: correct paths to moved files, remove entries whose files are gone, add obvious missing features with their Start file, and replace any "Not yet mapped" placeholder.
    - Fix Child Doc Shape: restore missing sections and their order; convert a submodule/subproject doc into a sub-root where it should be one (but never a nested root — step 2).
-   - Repair the root AGENTS.md / CLAUDE.md bridges without discarding unrelated instructions.
+   - Repair the root AGENTS.md / CLAUDE.md / .gemini/settings.json bridges without discarding unrelated instructions or settings.
    - Delete text describing files or behavior that no longer exist.
 4. Do NOT guess on judgment calls. For contract conflicts (a child weakening a parent), ambiguous ownership, or a rule you cannot tell is intentional, leave it unchanged and list it for me instead.
 5. Follow the Closeout procedure in DOX.md to finish.
@@ -246,7 +254,7 @@ Audit AND repair this project's DOX docs. Edit docs only — never change source
 <summary><strong>Short form</strong> — for capable / frontier models</summary>
 
 ```
-Audit and auto-fix this project's DOX docs (edit docs only, never source): create missing boundary/sub-root docs, repair every Child DOX Index and Feature Map, fix Child Doc Shape, repair the root AGENTS.md / CLAUDE.md bridges, and remove stale text. Never edit inside a nested root identified by full root rules in DOX.md or legacy AGENTS.md. Never rename the root AGENTS.md shim or an unrelated/ambiguous harness file. List those items for me, run Closeout, then report every change.
+Audit and auto-fix this project's DOX docs (edit docs only, never source): create missing boundary/sub-root docs, repair every Child DOX Index and Feature Map, fix Child Doc Shape, repair the root AGENTS.md / CLAUDE.md / .gemini/settings.json bridges, and remove stale text. Never edit inside a nested root identified by full root rules in DOX.md or legacy AGENTS.md. Never rename the root AGENTS.md shim or an unrelated/ambiguous harness file. List those items for me, run Closeout, then report every change.
 ```
 
 </details>

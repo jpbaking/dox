@@ -30,7 +30,7 @@ Never edit any file inside a descendant folder that carries the full root rules 
 - **Feature Map — orphaned entries:** if a feature's Start file has moved to a different subtree, move the entry to the doc that now owns that subtree. Update both the source and destination docs.
 - **Feature Map — locality:** if all of a feature's code lives within a single child's subtree but the entry is in the parent, move it down to the child. If a feature in a child doc now spans multiple sibling subtrees, move it up to the parent.
 - Fix Child Doc Shape: restore missing sections and their order; convert a submodule/subproject doc into a sub-root where it should be one (but never a nested root — Step 2).
-- Repair agent bridges: ensure root `AGENTS.md` points to `DOX.md`; ensure root `CLAUDE.md` imports `AGENTS.md` or directly points to `DOX.md`. Create missing files with the standard minimal content, or prepend the missing direction once while preserving unrelated instructions. Never overwrite a full legacy DOX framework as a shim.
+- Repair agent bridges: ensure root `AGENTS.md` points to `DOX.md`; ensure root `CLAUDE.md` imports `AGENTS.md` or directly points to `DOX.md`; ensure root `.gemini/settings.json` lists `AGENTS.md` in `context.fileName`, merging exactly as the "Shim agent harnesses" step in the root DOX.md describes (never replace other settings; if the file is not plain valid JSON, report the change instead). Create missing files with the standard minimal content, or prepend the missing direction once while preserving unrelated instructions. Never overwrite a full legacy DOX framework as a shim.
 - Delete text describing files or behavior that no longer exist.
 
 ## Step 4 — Do NOT guess on judgment calls
