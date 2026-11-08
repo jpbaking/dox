@@ -25,10 +25,12 @@ Replace the framework rules in the root DOX.md with the latest version, preserve
 Obtain the latest framework with git, never with a raw-file or archive download (those fail behind enterprise GitHub authentication):
 
 1. Use the DOX remote the user names (a fork, mirror, enterprise host, or SSH remote); otherwise use `https://github.com/jpbaking/dox`.
-2. Create a new, empty temporary directory outside the project and clone only the repository root into it, without prompting for a password:
-   `GIT_TERMINAL_PROMPT=0 git clone --depth 1 --filter=blob:none --sparse <remote> <tmp>/dox`
-3. The framework is `<tmp>/dox/DOX.md`. Do NOT overwrite the project's root doc yet.
-4. If the clone fails, STOP. Tell the user the error, and ask them to authenticate the way they normally do for that host (for example `gh auth login` then `gh auth setup-git`, or loading an SSH key) or to name the correct remote, then use the `dox-upgrade` skill again. Never ask for or embed a token, and never upgrade from memory.
+2. Find the latest release: list the release tags without prompting for a password, `GIT_TERMINAL_PROMPT=0 git ls-remote --tags --refs <remote>`, and take the highest `vX.Y.Z` tag by numeric comparison (ignore other tag names). The framework version always equals the DOX release tag. Call it `<tag>`. Upgrade to `<tag>` unless the user explicitly asks for the unreleased default branch; if the remote has no `vX.Y.Z` tags, use the default branch and say so.
+3. Create a new, empty temporary directory outside the project and clone only the repository root at that tag into it, without prompting for a password:
+   `GIT_TERMINAL_PROMPT=0 git clone --depth 1 --branch <tag> --filter=blob:none --sparse <remote> <tmp>/dox`
+   (omit `--branch <tag>` only for the default-branch case above).
+4. The framework is `<tmp>/dox/DOX.md`; its `DOX v` line should equal `<tag>`. Do NOT overwrite the project's root doc yet.
+5. If listing tags or cloning fails, STOP. Tell the user the error, and ask them to authenticate the way they normally do for that host (for example `gh auth login` then `gh auth setup-git`, or loading an SSH key) or to name the correct remote, then use the `dox-upgrade` skill again. Never ask for or embed a token, and never upgrade from memory.
 
 Delete `<tmp>` when this skill finishes, including when it stops early.
 
@@ -39,7 +41,7 @@ The framework version is the line starting `DOX v` directly under the `# DOX fra
 - Same version with pending filename or harness-bridge work: delete `<tmp>`, skip the framework text merge, and continue to Step 4.
 - Same version with no pending filename or harness-bridge work: delete `<tmp>`, report "already on the latest version," and STOP.
 - The project file has no `DOX v` line: it predates versioning — continue.
-- Different versions: continue.
+- Different versions: continue. Compare numerically; framework versions before v6.1.0 used a separate, lower numbering and are always older.
 
 Pending work exists when the root or a recognizable child doc still uses the legacy filename, when the root `AGENTS.md` shim is missing/incomplete, when `CLAUDE.md` does not reach the DOX instructions, or when `.gemini/settings.json` is missing or does not list `AGENTS.md` in `context.fileName`. Nested roots and unrelated/ambiguous `AGENTS.md` files do not count as pending work in the parent project.
 

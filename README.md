@@ -48,16 +48,16 @@ The core workflows are portable [Agent Skills](https://agentskills.io/) under [.
 
 ```
 Install DOX. Using git with my existing credentials (do not download raw files
-or archives), clone https://github.com/jpbaking/dox at tag v6.0.0 with
+or archives), clone https://github.com/jpbaking/dox at tag v6.1.0 with
 --depth 1 into a new temporary directory outside any project. Then read
 AGENT-INSTALL.md from that clone and follow it exactly. Merge with—never
 blindly overwrite—any existing global instruction files, ask me which
 harnesses to install for, and report every file you created or changed.
 ```
 
-This prompt pins release `v6.0.0` (cloned with `--branch v6.0.0`). To install
+This prompt pins release `v6.1.0` (cloned with `--branch v6.1.0`). To install
 another release, change the tag; to track the default branch, drop
-`at tag v6.0.0`. On a fork, mirror, or enterprise host, substitute the remote
+`at tag v6.1.0`. On a fork, mirror, or enterprise host, substitute the remote
 you clone from.
 
 **What the prompt does:** your agent clones this repository with your own git
@@ -280,7 +280,7 @@ Modified by [jpbaking](https://github.com/jpbaking).
 - Added a leaf example and a sub-root example child DOX.md, and decoupled the initialization trigger from the Child DOX Index placeholder.
 - Added a **Feature Map** section: each doc — the root included, under the same rules — points its features to their entry and supporting source files, so an agent can start a feature with minimal code traversal and an architecture overview can be aggregated by walking the tree.
 - Added **nested roots**: any descendant folder that carries full root rules in DOX.md or legacy AGENTS.md — a git submodule, SVN external, Perforce mapped path, or other independently versioned subproject — keeps its full rules, root shape, and current filename. The parent tree reads it as a local root but never rewrites it; conflicts are reported instead of "fixed."
-- Added a **version marker** (`DOX vX.Y.Z`) at the top of the framework, so audits can detect an outdated framework and `dox-upgrade` can migrate a project's rules without losing its content.
+- Added a **version marker** (`DOX vX.Y.Z`, equal to the release tag since v6.1.0) at the top of the framework, so audits can detect an outdated framework and `dox-upgrade` can migrate a project's rules without losing its content.
 - Trimmed jargon on the procedural path, and reworked the README "How to use" with scenario-specific prompts.
 - **Renamed `AGENTS.md` → `DOX.md`** across the entire framework. The filename `AGENTS.md` is now a convention shared by multiple coding-agent harnesses, so using it for the DOX framework created conflicts. `DOX.md` is unique to this framework and avoids collisions. To ensure compatible harnesses still automatically follow DOX, the framework now creates and maintains a lightweight `AGENTS.md` shim pointing them to `DOX.md`.
 

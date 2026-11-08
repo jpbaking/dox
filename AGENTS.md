@@ -12,8 +12,11 @@ guides, especially *Agent toolkit repositories*.
 - Edit skills only under `.agents/skills/`. Regenerate `.claude/skills/` as a
   byte-identical full-directory mirror; never edit it independently.
 - `DOX.md` is the framework source. Keep
-  `.agents/skills/dox-init/assets/DOX.md` byte-identical to it, and bump the
-  `DOX v` line when the framework text changes.
+  `.agents/skills/dox-init/assets/DOX.md` byte-identical to it.
+- The `DOX v` line always equals the release tag (`dox-audit` and
+  `dox-upgrade` rely on it). In every release commit, before tagging, set it
+  to the new version in `DOX.md` and the bundled asset, and update the README
+  install-prompt pin to the same tag. Releases are `vX.Y.Z` tags only.
 - No skill may fetch this repository's files over raw HTTP; bundle them under
   `assets/` or obtain them with `git clone`.
 - Keep the self-gating rule body in `rules/shared/dox.md`; update

@@ -1,6 +1,6 @@
 # DOX framework
 
-DOX v3.1.0 — framework source: https://github.com/jpbaking/dox
+DOX v6.1.0 — framework source: https://github.com/jpbaking/dox
 
 DOX is a hierarchy of DOX.md files that keeps a project understandable. Each folder's DOX.md is the local contract for everything beneath it; together they form a tree from the repository root down to each work area. Follow DOX across every edit in this project.
 
